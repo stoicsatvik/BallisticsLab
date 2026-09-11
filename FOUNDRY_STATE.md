@@ -20,13 +20,23 @@ Never fabricate measurements, incident details, military capabilities, or legal 
 ### 1. Physics + simulation
 Current baseline: analytical 2D vacuum projectile model in C with momentum and kinetic-energy helpers.
 
+#### v0.2 fixed-step simulator evidence
+- Branch: `foundry/v02-timestep-simulator`
+- Draft PR: #4
+- Validated implementation head: `7f8530ab370d447c6fda2a6d0bf69e054232f62f`
+- CI: GitHub Actions run `34584985656` completed successfully on that exact head.
+- Capability: reusable caller-owned trajectory sampling API, configurable fixed `dt`, deterministic CSV serialization, interpolated ground crossing, and fail-closed invalid-input/capacity behavior.
+- Frozen validation fixture: generic 10 m/s, 45 degree vacuum launch compared with the closed-form baseline at `dt=0.01 s` and `dt=0.001 s`.
+- Frozen tolerances: coarse landing time `1e-4 s`, coarse range `1e-3 m`; fine landing time `1e-6 s`, fine range `1e-5 m`.
+- Claim: **SUPPORTED** for the committed deterministic vacuum-model contracts only. Real-world projectile prediction remains **NOT YET PROVEN** and outside this increment.
+- Safety boundary: generic educational physics only; no firearm-specific firing solution, sight correction, target-engagement, or lethality optimization.
+
 Priority sequence:
-1. reusable time-step integrator + CSV output
-2. analytical-vs-numerical validation
-3. uncertainty propagation + Monte Carlo statistics
-4. generic aerodynamic drag models
-5. measurement/error analysis
-6. visualizations and reproducible notebooks
+1. finish review of v0.2 simulator evidence; do not merge without explicit approval
+2. uncertainty propagation + Monte Carlo statistics
+3. generic aerodynamic drag models
+4. measurement/error analysis
+5. visualizations and reproducible notebooks
 
 Keep models generic and educational. Do not produce real-world firing solutions, sight corrections, target engagement calculators, or optimization for harming people.
 
@@ -85,15 +95,16 @@ Prefer official manuals released for public education, museums, government repor
 Do not provide tactical attack planning, target selection, exploitation of military/security weaknesses, explosive design, armour-defeat recipes, or instructions for increasing lethality.
 
 ## Current issues
-- #1 v0.2: time-step trajectory simulator and CSV output
+- #1 v0.2: time-step trajectory simulator and CSV output — implementation + deterministic CI evidence present in draft PR #4; unmerged
 - #2 v0.3: uncertainty and Monte Carlo statistics
 - #3 law: primary-source India firearms law map
 
 ## Highest-EV next moves
-1. Finish #1 with deterministic tests against the analytical baseline.
-2. Add a structured source/provenance schema for legal and historical notes.
-3. Build a non-operational mechanism taxonomy.
-4. Add the first historical case study only after the sourcing template exists.
+1. Preserve PR #4 as the reviewed v0.2 evidence package until merge approval exists.
+2. Start #2 with seeded, generic uncertainty fixtures only after v0.2 is frozen.
+3. Add a structured source/provenance schema for legal and historical notes.
+4. Build a non-operational mechanism taxonomy.
+5. Add the first historical case study only after the sourcing template exists.
 
 ## Validation rules
 - physics claims require derivation, test, or cited source
