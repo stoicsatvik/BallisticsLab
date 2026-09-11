@@ -1,0 +1,5 @@
+ballisticslab
+test_physics
+*.o
+*.out
+.DS_Store
