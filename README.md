@@ -50,8 +50,14 @@ make
 Or directly:
 
 ```bash
-cc -std=c11 -Wall -Wextra -pedantic src/main.c -lm -o ballisticslab
+cc -std=c11 -Wall -Wextra -pedantic src/main.c src/physics.c -lm -o ballisticslab
 ./ballisticslab
+```
+
+Run tests with:
+
+```bash
+make test
 ```
 
 ## Learning rule
