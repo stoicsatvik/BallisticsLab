@@ -32,3 +32,41 @@ TrajectoryResult bl_vacuum_trajectory(double speed_mps, double angle_deg) {
 
     return result;
 }
+
+size_t bl_vacuum_integrate(double speed_mps, double angle_deg, double dt_s,
+                           TrajectorySample *samples, size_t capacity) {
+    if (samples == NULL || capacity == 0 || dt_s <= 0.0 || speed_mps < 0.0) {
+        return 0;
+    }
+
+    const double theta = bl_deg_to_rad(angle_deg);
+    const double vx = speed_mps * cos(theta);
+    const double vy0 = speed_mps * sin(theta);
+    if (vy0 <= 0.0) {
+        samples[0] = (TrajectorySample){0.0, 0.0, 0.0, vx, vy0};
+        return 1;
+    }
+
+    const double flight_time = (2.0 * vy0) / BL_G;
+    size_t count = 0;
+    double t = 0.0;
+
+    while (count < capacity) {
+        if (t > flight_time) {
+            t = flight_time;
+        }
+        samples[count++] = (TrajectorySample){
+            .time_s = t,
+            .x_m = vx * t,
+            .y_m = vy0 * t - 0.5 * BL_G * t * t,
+            .vx_mps = vx,
+            .vy_mps = vy0 - BL_G * t,
+        };
+        if (t >= flight_time) {
+            break;
+        }
+        t += dt_s;
+    }
+
+    return count;
+}
