@@ -20,13 +20,22 @@ Never fabricate measurements, incident details, military capabilities, or legal 
 ### 1. Physics + simulation
 Current baseline: analytical 2D vacuum projectile model in C with momentum and kinetic-energy helpers.
 
+#### v0.2 numerical evidence
+- Branch: `foundry/numerical-vacuum-integrator`
+- Draft PR: #7
+- Exact validated head: `bd89c23c738b12f86b7c32b3548220bde61d608f`
+- GitHub Actions: `C CI` run `35486792036` completed successfully on that exact head.
+- Capability: reusable constant-gravity numerical integrator with configurable `dt`, structured `time/x/y/vx/vy` samples, interpolated ground crossing, explicit sample ownership, and deterministic CSV serialization.
+- Validation: deterministic tests compare impact time, range, and sampled apex with the existing analytical vacuum model and reject invalid parameters.
+- Claim: **SUPPORTED** for these committed synthetic vacuum-model software contracts. Real-world projectile prediction is **NOT YET PROVEN** and outside this increment.
+- Safety boundary: no firearm-specific parameters, targeting, sight corrections, atmospheric correction, optimization, or real-world firing solutions.
+
 Priority sequence:
-1. reusable time-step integrator + CSV output
-2. analytical-vs-numerical validation
-3. uncertainty propagation + Monte Carlo statistics
-4. generic aerodynamic drag models
-5. measurement/error analysis
-6. visualizations and reproducible notebooks
+1. preserve the validated v0.2 evidence package until merge approval exists
+2. uncertainty propagation + Monte Carlo statistics using generic synthetic fixtures
+3. generic aerodynamic drag models
+4. measurement/error analysis
+5. visualizations and reproducible notebooks
 
 Keep models generic and educational. Do not produce real-world firing solutions, sight corrections, target engagement calculators, or optimization for harming people.
 
@@ -85,15 +94,16 @@ Prefer official manuals released for public education, museums, government repor
 Do not provide tactical attack planning, target selection, exploitation of military/security weaknesses, explosive design, armour-defeat recipes, or instructions for increasing lethality.
 
 ## Current issues
-- #1 v0.2: time-step trajectory simulator and CSV output
+- #1 v0.2: time-step trajectory simulator and CSV output — implementation + exact-head CI evidence present in draft PR #7; unmerged
 - #2 v0.3: uncertainty and Monte Carlo statistics
 - #3 law: primary-source India firearms law map
 
 ## Highest-EV next moves
-1. Finish #1 with deterministic tests against the analytical baseline.
-2. Add a structured source/provenance schema for legal and historical notes.
-3. Build a non-operational mechanism taxonomy.
-4. Add the first historical case study only after the sourcing template exists.
+1. Preserve PR #7 as the current validated v0.2 evidence package; do not merge without explicit approval.
+2. Start #2 with seeded generic uncertainty fixtures and descriptive statistics, preserving the non-operational boundary.
+3. Add a structured source/provenance schema for legal and historical notes.
+4. Build a non-operational mechanism taxonomy.
+5. Add the first historical case study only after the sourcing template exists.
 
 ## Validation rules
 - physics claims require derivation, test, or cited source
