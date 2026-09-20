@@ -26,6 +26,8 @@ The project is intentionally **non-operational**: it does not provide weapon-con
 - CSV output
 - Unit tests
 
+The v0.2 integrator is a generic vacuum-physics model. It advances constant-gravity kinematics at configurable `dt`, records `time/x/y/vx/vy`, and linearly interpolates the final ground crossing. The deterministic test compares its impact time/range against the analytical vacuum solution. This is a numerical-method exercise, not a real-world firing solution: it omits drag, wind, atmosphere, spin, geometry, launcher/sight offsets, and every other operational correction.
+
 ### v0.3 — Statistics
 - Measurement uncertainty
 - Mean, variance and standard deviation
