@@ -23,10 +23,10 @@ Current baseline: analytical 2D vacuum projectile model in C with momentum and k
 #### v0.2 numerical evidence
 - Branch: `foundry/numerical-vacuum-integrator`
 - Draft PR: #7
-- Exact validated head: `bd89c23c738b12f86b7c32b3548220bde61d608f`
-- GitHub Actions: `C CI` run `35486792036` completed successfully on that exact head.
-- Capability: reusable constant-gravity numerical integrator with configurable `dt`, structured `time/x/y/vx/vy` samples, interpolated ground crossing, explicit sample ownership, and deterministic CSV serialization.
-- Validation: deterministic tests compare impact time, range, and sampled apex with the existing analytical vacuum model and reject invalid parameters.
+- Exact validated head: `24dfd911585cb8ce296a0499dc01ddbac2e4228f`
+- GitHub Actions: `C CI` run `35510805240` completed successfully on that exact head; job `build-test` passed both Build and Test steps.
+- Capability: reusable constant-gravity numerical integrator with configurable `dt`, structured `time/x/y/vx/vy` samples, interpolated ground crossing, explicit sample ownership, deterministic CSV serialization, and deterministic analytical-vs-numerical comparison.
+- Validation: deterministic tests compare impact time, range, and sampled apex with the existing analytical vacuum model, check ground termination and CSV schema, and reject invalid inputs.
 - Claim: **SUPPORTED** for these committed synthetic vacuum-model software contracts. Real-world projectile prediction is **NOT YET PROVEN** and outside this increment.
 - Safety boundary: no firearm-specific parameters, targeting, sight corrections, atmospheric correction, optimization, or real-world firing solutions.
 
