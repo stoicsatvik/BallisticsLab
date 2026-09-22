@@ -61,9 +61,12 @@ int main(void) {
     assert(close_enough(mc_a.mean, 21.0, 0.15));
     assert(close_enough(mc_a.sample_stddev, 4.0, 0.15));
 
+    /* A larger sample should satisfy a tighter statistical tolerance.  It need
+       not be closer than every smaller deterministic prefix for a particular
+       seed; Monte Carlo error is not monotone sample-by-sample. */
     assert(stats_monte_carlo_normal(1234, 65536, 10.0, 2.0, affine_transform, (void *)&scale, &mc_large) == 0);
-    assert(fabs(mc_large.mean - 21.0) < fabs(mc_a.mean - 21.0));
-    assert(fabs(mc_large.sample_stddev - 4.0) < fabs(mc_a.sample_stddev - 4.0));
+    assert(close_enough(mc_large.mean, 21.0, 0.05));
+    assert(close_enough(mc_large.sample_stddev, 4.0, 0.05));
 
     assert(stats_monte_carlo_normal(1, 1, 0.0, 1.0, affine_transform, (void *)&scale, &summary) != 0);
     assert(stats_monte_carlo_normal(1, 10, 0.0, -1.0, affine_transform, (void *)&scale, &summary) != 0);
