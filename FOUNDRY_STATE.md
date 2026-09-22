@@ -30,10 +30,20 @@ Current baseline: analytical 2D vacuum projectile model in C with momentum and k
 - Claim: **SUPPORTED** for these committed synthetic vacuum-model software contracts. Real-world projectile prediction is **NOT YET PROVEN** and outside this increment.
 - Safety boundary: no firearm-specific parameters, targeting, sight corrections, atmospheric correction, optimization, or real-world firing solutions.
 
+#### v0.3 generic statistics substrate
+- Branch: `foundry/generic-statistics`
+- Stacked draft PR: #8 (base: `foundry/numerical-vacuum-integrator`)
+- Exact validated implementation head: `a9b34138f76c2480357f437a27eb727cbdc3543f`
+- GitHub Actions: `C CI` run `35754552162` completed successfully on that exact head.
+- Capability: numerically stable mean/sample variance/stddev, deterministic interpolated p05/p50/p95, seeded reproducible uniform/normal sampling, and fail-closed handling of non-finite/undersized samples and invalid distribution parameters.
+- Validation: deterministic C tests are wired into the existing `make test` gate and passed exact-head CI.
+- Claim: **SUPPORTED** for this bounded generic statistics software contract. Monte Carlo uncertainty propagation itself is **NOT YET PROVEN** until implemented and validated separately.
+- Safety boundary: descriptive statistics and synthetic random sampling only; no firearm-specific parameters, targeting, sight corrections, atmospheric correction, optimization, lethality analysis, or real-world firing solutions.
+
 Priority sequence:
-1. preserve the validated v0.2 evidence package until merge approval exists
-2. uncertainty propagation + Monte Carlo statistics using generic synthetic fixtures
-3. generic aerodynamic drag models
+1. preserve the validated v0.2 and generic-statistics evidence packages until merge approval exists
+2. add seeded Monte Carlo uncertainty propagation using generic synthetic measurement fixtures only
+3. generic aerodynamic drag models only if they remain non-operational and educational
 4. measurement/error analysis
 5. visualizations and reproducible notebooks
 
@@ -65,12 +75,12 @@ Study military technology only at systems/historical level: families and develop
 
 ## Current issues
 - #1 v0.2: time-step trajectory simulator and CSV output — implementation + exact-head CI evidence present in draft PR #7; unmerged
-- #2 v0.3: uncertainty and Monte Carlo statistics
+- #2 v0.3: generic statistics substrate now exact-head validated in stacked draft PR #8; Monte Carlo propagation remains pending
 - #3 law: primary-source India firearms law map
 
 ## Highest-EV next moves
-1. Preserve PR #7 as the current validated v0.2 evidence package; do not merge without explicit approval.
-2. Start #2 with seeded generic uncertainty fixtures and descriptive statistics, preserving the non-operational boundary.
+1. Preserve PRs #7 and #8 as validated evidence packages; do not merge without explicit approval.
+2. Continue #2 with seeded Monte Carlo propagation over deliberately generic synthetic measurement fixtures, with deterministic fixtures and convergence checks.
 3. Add a structured source/provenance schema for legal and historical notes.
 4. Build a non-operational mechanism taxonomy.
 5. Add the first historical case study only after the sourcing template exists.
