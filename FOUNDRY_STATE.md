@@ -37,15 +37,25 @@ Current baseline: analytical 2D vacuum projectile model in C with momentum and k
 - GitHub Actions: `C CI` run `35754552162` completed successfully on that exact head.
 - Capability: numerically stable mean/sample variance/stddev, deterministic interpolated p05/p50/p95, seeded reproducible uniform/normal sampling, and fail-closed handling of non-finite/undersized samples and invalid distribution parameters.
 - Validation: deterministic C tests are wired into the existing `make test` gate and passed exact-head CI.
-- Claim: **SUPPORTED** for this bounded generic statistics software contract. Monte Carlo uncertainty propagation itself is **NOT YET PROVEN** until implemented and validated separately.
+- Claim: **SUPPORTED** for this bounded generic statistics software contract.
 - Safety boundary: descriptive statistics and synthetic random sampling only; no firearm-specific parameters, targeting, sight corrections, atmospheric correction, optimization, lethality analysis, or real-world firing solutions.
 
+#### v0.3 generic Monte Carlo propagation
+- Branch: `foundry/generic-monte-carlo`
+- Stacked draft PR: #9 (base: `foundry/generic-statistics`)
+- Exact validated implementation head: `cd7fdc76b2a956dbe396dac76efb0051fa7eaa1b`
+- GitHub Actions: `C CI` run `35774259589` completed successfully on that exact head.
+- Capability: seeded Monte Carlo propagation over generic synthetic normal measurements through a caller-supplied scalar transform, with propagated summary statistics and fail-closed rejection of invalid parameters/non-finite transformed outputs.
+- Validation: deterministic tests cover same-seed reproducibility, synthetic affine expectation bounds, larger-sample absolute convergence tolerances, and invalid-input rejection. The earlier pairwise monotonic-error assertion was rejected as mathematically invalid before this exact-head success.
+- Claim: **SUPPORTED** for this bounded generic Monte Carlo software contract. Real-world projectile prediction remains **NOT YET PROVEN** and outside this increment.
+- Safety boundary: generic synthetic measurement fixtures only; no firearm-specific parameters, targeting, sight corrections, atmospheric correction, optimization, lethality analysis, or operational firing solutions.
+
 Priority sequence:
-1. preserve the validated v0.2 and generic-statistics evidence packages until merge approval exists
-2. add seeded Monte Carlo uncertainty propagation using generic synthetic measurement fixtures only
-3. generic aerodynamic drag models only if they remain non-operational and educational
-4. measurement/error analysis
-5. visualizations and reproducible notebooks
+1. preserve validated PRs #7, #8 and #9 as evidence packages until merge approval exists
+2. rotate implementation priority away from the now-validated Monte Carlo substrate
+3. measurement/error analysis using generic synthetic fixtures
+4. structured legal/historical provenance schema
+5. generic aerodynamic models only if they remain non-operational and educational
 
 Keep models generic and educational. Do not produce real-world firing solutions, sight corrections, target engagement calculators, or optimization for harming people.
 
@@ -75,13 +85,13 @@ Study military technology only at systems/historical level: families and develop
 
 ## Current issues
 - #1 v0.2: time-step trajectory simulator and CSV output — implementation + exact-head CI evidence present in draft PR #7; unmerged
-- #2 v0.3: generic statistics substrate now exact-head validated in stacked draft PR #8; Monte Carlo propagation remains pending
+- #2 v0.3: generic statistics substrate exact-head validated in PR #8; generic Monte Carlo propagation exact-head validated in PR #9
 - #3 law: primary-source India firearms law map
 
 ## Highest-EV next moves
-1. Preserve PRs #7 and #8 as validated evidence packages; do not merge without explicit approval.
-2. Continue #2 with seeded Monte Carlo propagation over deliberately generic synthetic measurement fixtures, with deterministic fixtures and convergence checks.
-3. Add a structured source/provenance schema for legal and historical notes.
+1. Preserve PRs #7, #8 and #9 as validated evidence packages; do not merge without explicit approval.
+2. Rotate protected-repo priority to other starved Tier-A streams rather than adding cosmetic BallisticsLab churn.
+3. When BallisticsLab next has genuine EV, add a structured source/provenance schema for legal and historical notes or generic measurement/error analysis.
 4. Build a non-operational mechanism taxonomy.
 5. Add the first historical case study only after the sourcing template exists.
 
