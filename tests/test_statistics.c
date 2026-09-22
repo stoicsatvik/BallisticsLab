@@ -8,6 +8,17 @@ static int close_enough(double a, double b, double tolerance) {
     return fabs(a - b) <= tolerance;
 }
 
+static double affine_transform(double sample, void *context) {
+    const double scale = *(const double *)context;
+    return scale * sample + 1.0;
+}
+
+static double invalid_transform(double sample, void *context) {
+    (void)sample;
+    (void)context;
+    return NAN;
+}
+
 int main(void) {
     const double values[] = {1.0, 2.0, 3.0, 4.0, 5.0};
     StatsSummary summary;
@@ -39,5 +50,24 @@ int main(void) {
     assert(isnan(stats_rng_normal(NULL, 0.0, 1.0)));
     assert(isnan(stats_rng_normal(&a, 0.0, -1.0)));
     assert(stats_rng_normal(&a, 5.0, 0.0) == 5.0);
+
+    const double scale = 2.0;
+    StatsSummary mc_a, mc_b, mc_large;
+    assert(stats_monte_carlo_normal(1234, 4096, 10.0, 2.0, affine_transform, (void *)&scale, &mc_a) == 0);
+    assert(stats_monte_carlo_normal(1234, 4096, 10.0, 2.0, affine_transform, (void *)&scale, &mc_b) == 0);
+    assert(mc_a.mean == mc_b.mean);
+    assert(mc_a.sample_stddev == mc_b.sample_stddev);
+    assert(mc_a.p05 == mc_b.p05 && mc_a.p50 == mc_b.p50 && mc_a.p95 == mc_b.p95);
+    assert(close_enough(mc_a.mean, 21.0, 0.15));
+    assert(close_enough(mc_a.sample_stddev, 4.0, 0.15));
+
+    assert(stats_monte_carlo_normal(1234, 65536, 10.0, 2.0, affine_transform, (void *)&scale, &mc_large) == 0);
+    assert(fabs(mc_large.mean - 21.0) < fabs(mc_a.mean - 21.0));
+    assert(fabs(mc_large.sample_stddev - 4.0) < fabs(mc_a.sample_stddev - 4.0));
+
+    assert(stats_monte_carlo_normal(1, 1, 0.0, 1.0, affine_transform, (void *)&scale, &summary) != 0);
+    assert(stats_monte_carlo_normal(1, 10, 0.0, -1.0, affine_transform, (void *)&scale, &summary) != 0);
+    assert(stats_monte_carlo_normal(1, 10, 0.0, 1.0, NULL, NULL, &summary) != 0);
+    assert(stats_monte_carlo_normal(1, 10, 0.0, 1.0, invalid_transform, NULL, &summary) != 0);
     return 0;
 }
