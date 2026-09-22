@@ -17,9 +17,20 @@ typedef struct {
     uint64_t state;
 } StatsRng;
 
+typedef double (*StatsMonteCarloTransform)(double sample, void *context);
+
 int stats_summary(const double *values, size_t count, StatsSummary *out);
 void stats_rng_seed(StatsRng *rng, uint64_t seed);
 double stats_rng_uniform01(StatsRng *rng);
 double stats_rng_normal(StatsRng *rng, double mean, double stddev);
+int stats_monte_carlo_normal(
+    uint64_t seed,
+    size_t count,
+    double input_mean,
+    double input_stddev,
+    StatsMonteCarloTransform transform,
+    void *context,
+    StatsSummary *out
+);
 
 #endif

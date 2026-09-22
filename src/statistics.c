@@ -74,3 +74,36 @@ double stats_rng_normal(StatsRng *rng, double mean, double stddev) {
     const double z = sqrt(-2.0 * log(u1)) * cos(6.28318530717958647692 * u2);
     return mean + stddev * z;
 }
+
+int stats_monte_carlo_normal(
+    uint64_t seed,
+    size_t count,
+    double input_mean,
+    double input_stddev,
+    StatsMonteCarloTransform transform,
+    void *context,
+    StatsSummary *out
+) {
+    if (!out || !transform || count < 2 || !isfinite(input_mean) ||
+        !isfinite(input_stddev) || input_stddev < 0.0) return -1;
+    if (count > SIZE_MAX / sizeof(double)) return -1;
+
+    double *outputs = malloc(count * sizeof(*outputs));
+    if (!outputs) return -1;
+
+    StatsRng rng;
+    stats_rng_seed(&rng, seed);
+    for (size_t i = 0; i < count; ++i) {
+        const double sample = stats_rng_normal(&rng, input_mean, input_stddev);
+        const double output = transform(sample, context);
+        if (!isfinite(output)) {
+            free(outputs);
+            return -1;
+        }
+        outputs[i] = output;
+    }
+
+    const int status = stats_summary(outputs, count, out);
+    free(outputs);
+    return status;
+}
