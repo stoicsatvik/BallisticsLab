@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <math.h>
+#include <float.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -48,6 +49,19 @@ int main(void) {
     assert(bl_simulate_vacuum(10.0, 45.0, 0.0, &numerical) == -1);
     assert(bl_simulate_vacuum(10.0, 0.0, 0.01, &numerical) == -1);
     assert(bl_simulate_vacuum(-1.0, 45.0, 0.01, &numerical) == -1);
+
+    /* A subnormal step would require astronomically many samples; reject
+       before allocating or entering the loop. */
+    assert(bl_simulate_vacuum(10.0, 45.0, DBL_MIN, &numerical) == -1);
+    assert(numerical.count == 0);
+
+    /* Even an ordinary tiny step must respect the documented sample cap. */
+    assert(bl_simulate_vacuum(10.0, 45.0, 1e-6, &numerical) == -1);
+    assert(numerical.count == 0);
+
+    /* Finite input can still overflow intermediate position arithmetic. */
+    assert(bl_simulate_vacuum(10.0, 45.0, DBL_MAX, &numerical) == -1);
+    assert(numerical.count == 0);
 
     puts("physics tests passed");
     return 0;
