@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <math.h>
+#include <float.h>
 #include <stddef.h>
 
 static int close_enough(double a, double b, double tolerance) {
@@ -29,6 +30,19 @@ int main(void) {
     assert(close_enough(summary.p50, 3.0, 1e-12));
     assert(close_enough(summary.p05, 1.2, 1e-12));
     assert(close_enough(summary.p95, 4.8, 1e-12));
+
+    /* Exact binary64 increments at a large offset must not be lost to
+       running-mean rounding. The five-point sample variance is exact. */
+#if LDBL_MANT_DIG > DBL_MANT_DIG
+    const double shifted[] = {
+        100000000000000.0, 100000000000000.015625,
+        100000000000000.03125, 100000000000000.046875,
+        100000000000000.0625
+    };
+    assert(stats_summary(shifted, 5, &summary) == 0);
+    assert(close_enough(summary.sample_variance, 0.0006103515625, 1e-15));
+    assert(isfinite(summary.sample_stddev));
+#endif
 
     const double invalid[] = {1.0, NAN};
     assert(stats_summary(invalid, 2, &summary) != 0);
