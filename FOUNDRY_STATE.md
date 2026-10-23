@@ -20,13 +20,42 @@ Never fabricate measurements, incident details, military capabilities, or legal 
 ### 1. Physics + simulation
 Current baseline: analytical 2D vacuum projectile model in C with momentum and kinetic-energy helpers.
 
+#### v0.2 numerical evidence
+- Branch: `foundry/numerical-vacuum-integrator`
+- Draft PR: #7
+- Exact validated implementation head: `1e6cf5ddfcb0eaf4d980eb5f0672582a4a6f3c2a`
+- GitHub Actions: `C CI` run `35619490999` completed successfully on that exact head.
+- Capability: reusable constant-gravity numerical integrator with configurable `dt`, structured `time/x/y/vx/vy` samples, interpolated ground crossing, explicit sample ownership, deterministic CSV serialization, and deterministic analytical-vs-numerical comparison.
+- Validation: deterministic tests compare impact time, range, and sampled apex with the existing analytical vacuum model, check ground termination and CSV schema, and reject invalid inputs.
+- Claim: **SUPPORTED** for these committed synthetic vacuum-model software contracts. Real-world projectile prediction is **NOT YET PROVEN** and outside this increment.
+- Safety boundary: no firearm-specific parameters, targeting, sight corrections, atmospheric correction, optimization, or real-world firing solutions.
+
+#### v0.3 generic statistics substrate
+- Branch: `foundry/generic-statistics`
+- Stacked draft PR: #8 (base: `foundry/numerical-vacuum-integrator`)
+- Exact validated implementation head: `a9b34138f76c2480357f437a27eb727cbdc3543f`
+- GitHub Actions: `C CI` run `35754552162` completed successfully on that exact head.
+- Capability: numerically stable mean/sample variance/stddev, deterministic interpolated p05/p50/p95, seeded reproducible uniform/normal sampling, and fail-closed handling of non-finite/undersized samples and invalid distribution parameters.
+- Validation: deterministic C tests are wired into the existing `make test` gate and passed exact-head CI.
+- Claim: **SUPPORTED** for this bounded generic statistics software contract.
+- Safety boundary: descriptive statistics and synthetic random sampling only; no firearm-specific parameters, targeting, sight corrections, atmospheric correction, optimization, lethality analysis, or real-world firing solutions.
+
+#### v0.3 generic Monte Carlo propagation
+- Branch: `foundry/generic-monte-carlo`
+- Stacked draft PR: #9 (base: `foundry/generic-statistics`)
+- Exact validated implementation head: `cd7fdc76b2a956dbe396dac76efb0051fa7eaa1b`
+- GitHub Actions: `C CI` run `35774259589` completed successfully on that exact head.
+- Capability: seeded Monte Carlo propagation over generic synthetic normal measurements through a caller-supplied scalar transform, with propagated summary statistics and fail-closed rejection of invalid parameters/non-finite transformed outputs.
+- Validation: deterministic tests cover same-seed reproducibility, synthetic affine expectation bounds, larger-sample absolute convergence tolerances, and invalid-input rejection. The earlier pairwise monotonic-error assertion was rejected as mathematically invalid before this exact-head success.
+- Claim: **SUPPORTED** for this bounded generic Monte Carlo software contract. Real-world projectile prediction remains **NOT YET PROVEN** and outside this increment.
+- Safety boundary: generic synthetic measurement fixtures only; no firearm-specific parameters, targeting, sight corrections, atmospheric correction, optimization, lethality analysis, or operational firing solutions.
+
 Priority sequence:
-1. reusable time-step integrator + CSV output
-2. analytical-vs-numerical validation
-3. uncertainty propagation + Monte Carlo statistics
-4. generic aerodynamic drag models
-5. measurement/error analysis
-6. visualizations and reproducible notebooks
+1. preserve validated PRs #7, #8 and #9 as evidence packages until merge approval exists
+2. rotate implementation priority away from the now-validated Monte Carlo substrate
+3. measurement/error analysis using generic synthetic fixtures
+4. structured legal/historical provenance schema
+5. generic aerodynamic models only if they remain non-operational and educational
 
 Keep models generic and educational. Do not produce real-world firing solutions, sight corrections, target engagement calculators, or optimization for harming people.
 
@@ -46,54 +75,25 @@ Do not provide construction dimensions, manufacturing recipes, conversion/modifi
 ### 3. India law + safety
 Use primary official sources first: India Code, Ministry of Home Affairs, Gazette notifications, Arms Act, Arms Rules, and current official amendments.
 
-Track:
-- definitions and categories
-- age/training rules
-- licensing concepts
-- shooting-sport pathways
-- transport/storage rules at a high level
-- prohibited/restricted categories
-- amendment dates and source provenance
-
-Do not search for acquisition loopholes, evasion methods, false paperwork, illegal sourcing, or ways to bypass licensing.
+Track definitions/categories, age/training rules, licensing concepts, shooting-sport pathways, transport/storage at a high level, prohibited/restricted categories, amendment dates and provenance. Do not search for acquisition loopholes, evasion, false paperwork, illegal sourcing, or licensing bypasses.
 
 ### 4. Public historical/forensic case studies
-Maintain a sourced case-study library for completed, publicly documented incidents, including selected assassinations, shootings, military incidents, accidents, and forensic investigations when they teach physics, evidence handling, engineering, law, or system failure.
-
-For each case, separate:
-- verified timeline
-- weapon/system identification only when publicly established
-- publicly documented forensic evidence
-- uncertainty / disputed claims
-- engineering or legal lesson
-- source quality
-
-Do not reconstruct attack plans, optimal firing positions, security vulnerabilities, evasion routes, targeting procedures, or actionable replication guidance. Do not track protected people for future attack risk or build live targeting intelligence.
+Maintain sourced case studies only for completed, publicly documented incidents where they teach physics, evidence handling, engineering, law, or system failure. Separate verified timeline, publicly established system identity, documented evidence, uncertainty, lesson, and source quality. Never reconstruct attack plans, firing positions, vulnerabilities, evasion routes, targeting procedures, or actionable replication guidance.
 
 ### 5. Military systems literacy
-Study military technology at a systems level:
-- small-arms families and historical development
-- logistics and ammunition standardization
-- reliability in environmental conditions
-- human factors
-- sensing, communications, protection, mobility, and sustainment concepts
-- doctrine only at a broad historical/organizational level
-- procurement, industrial base, and lifecycle economics
-
-Prefer official manuals released for public education, museums, government reports, declassified material, academic research, and reputable historical sources.
-
-Do not provide tactical attack planning, target selection, exploitation of military/security weaknesses, explosive design, armour-defeat recipes, or instructions for increasing lethality.
+Study military technology only at systems/historical level: families and development, logistics/standardization, environmental reliability, human factors, sensing/communications/protection/mobility/sustainment, broad doctrine, procurement, industrial base and lifecycle economics. No tactical attack planning, target selection, weakness exploitation, explosive design, armour-defeat recipes, or lethality optimization.
 
 ## Current issues
-- #1 v0.2: time-step trajectory simulator and CSV output
-- #2 v0.3: uncertainty and Monte Carlo statistics
+- #1 v0.2: time-step trajectory simulator and CSV output — implementation + exact-head CI evidence present in draft PR #7; unmerged
+- #2 v0.3: generic statistics substrate exact-head validated in PR #8; generic Monte Carlo propagation exact-head validated in PR #9
 - #3 law: primary-source India firearms law map
 
 ## Highest-EV next moves
-1. Finish #1 with deterministic tests against the analytical baseline.
-2. Add a structured source/provenance schema for legal and historical notes.
-3. Build a non-operational mechanism taxonomy.
-4. Add the first historical case study only after the sourcing template exists.
+1. Preserve PRs #7, #8 and #9 as validated evidence packages; do not merge without explicit approval.
+2. Rotate protected-repo priority to other starved Tier-A streams rather than adding cosmetic BallisticsLab churn.
+3. When BallisticsLab next has genuine EV, add a structured source/provenance schema for legal and historical notes or generic measurement/error analysis.
+4. Build a non-operational mechanism taxonomy.
+5. Add the first historical case study only after the sourcing template exists.
 
 ## Validation rules
 - physics claims require derivation, test, or cited source
@@ -107,12 +107,4 @@ Do not provide tactical attack planning, target selection, exploitation of milit
 This repository is public. Never commit private personal data, credentials, leaked material, private security information, restricted manuals, graphic media, or sensitive operational details.
 
 ## Foundry reporting
-Whenever the Unified Parallel Foundry advances BallisticsLab, record:
-- branch / commit / PR
-- exact capability or research increment
-- tests / validation
-- sources used
-- claim status
-- safety/public-boundary check
-- blocker
-- highest-EV next move
+Whenever the Unified Parallel Foundry advances BallisticsLab, record branch/commit/PR, exact increment, tests/validation, sources, claim status, safety boundary, blocker and highest-EV next move.
