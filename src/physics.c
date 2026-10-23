@@ -6,6 +6,8 @@
 
 static const double BL_G = 9.80665;
 static const double BL_PI = 3.14159265358979323846;
+/* Bound memory and CPU for pathological fixed-step inputs. */
+static const size_t BL_MAX_TRAJECTORY_SAMPLES = 1000000;
 
 double bl_deg_to_rad(double degrees) {
     return degrees * BL_PI / 180.0;
@@ -37,6 +39,7 @@ TrajectoryResult bl_vacuum_trajectory(double speed_mps, double angle_deg) {
 
 static int append_sample(NumericalTrajectory *result, size_t *capacity,
                          TrajectorySample sample) {
+    if (result->count >= BL_MAX_TRAJECTORY_SAMPLES) return -1;
     if (result->count == *capacity) {
         size_t next_capacity = *capacity == 0 ? 64 : *capacity * 2;
         TrajectorySample *next = realloc(result->samples,
@@ -64,6 +67,13 @@ int bl_simulate_vacuum(double speed_mps, double angle_deg, double dt_s,
     const double theta = bl_deg_to_rad(angle_deg);
     const double vx = speed_mps * cos(theta);
     double vy = speed_mps * sin(theta);
+    /* A tiny step can request billions of samples before the first impact.
+       Reject it up front rather than allocating until the process is killed. */
+    const double estimated_steps = ((2.0 * vy) / BL_G) / dt_s;
+    if (!isfinite(estimated_steps) ||
+        estimated_steps > (double)(BL_MAX_TRAJECTORY_SAMPLES - 2)) {
+        return -1;
+    }
     double t = 0.0;
     double x = 0.0;
     double y = 0.0;
@@ -78,6 +88,15 @@ int bl_simulate_vacuum(double speed_mps, double angle_deg, double dt_s,
         const double next_x = x + vx * dt_s;
         const double next_y = y + vy * dt_s - 0.5 * BL_G * dt_s * dt_s;
         const double next_vy = vy - BL_G * dt_s;
+
+        /* Fail closed if arithmetic overflows or time/vertical state stalls.
+           Otherwise the loop may append identical samples indefinitely. */
+        if (!isfinite(next_t) || !isfinite(next_x) ||
+            !isfinite(next_y) || !isfinite(next_vy) || next_t <= t ||
+            (next_y == y && next_vy == vy)) {
+            bl_free_trajectory(result);
+            return -1;
+        }
 
         if (next_y < 0.0) {
             const double fraction = y / (y - next_y);
