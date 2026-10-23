@@ -20,8 +20,10 @@ static double percentile_sorted(const double *values, size_t count, double p) {
 int stats_summary(const double *values, size_t count, StatsSummary *out) {
     if (!values || !out || count < 2) return -1;
 
-    double mean = 0.0;
-    double m2 = 0.0;
+    /* Center before accumulating: ordinary Welford updates can lose
+       low-order differences when samples have a large common offset. */
+    const long double origin = (long double)values[0];
+    long double offset_sum = 0.0L;
     double *sorted = malloc(count * sizeof(*sorted));
     if (!sorted) return -1;
 
@@ -31,14 +33,22 @@ int stats_summary(const double *values, size_t count, StatsSummary *out) {
             return -1;
         }
         sorted[i] = values[i];
-        const double delta = values[i] - mean;
-        mean += delta / (double)(i + 1);
-        m2 += delta * (values[i] - mean);
+        offset_sum += (long double)values[i] - origin;
     }
-
+    const long double mean_offset = offset_sum / (long double)count;
+    long double m2 = 0.0L;
+    for (size_t i = 0; i < count; ++i) {
+        const long double delta = ((long double)values[i] - origin) - mean_offset;
+        m2 += delta * delta;
+    }
+    const long double variance = m2 / (long double)(count - 1);
+    if (!isfinite((double)variance)) {
+        free(sorted);
+        return -1;
+    }
     qsort(sorted, count, sizeof(*sorted), compare_double);
-    out->mean = mean;
-    out->sample_variance = m2 / (double)(count - 1);
+    out->mean = (double)(origin + mean_offset);
+    out->sample_variance = (double)variance;
     out->sample_stddev = sqrt(out->sample_variance);
     out->p05 = percentile_sorted(sorted, count, 0.05);
     out->p50 = percentile_sorted(sorted, count, 0.50);
