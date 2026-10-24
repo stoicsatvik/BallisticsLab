@@ -46,6 +46,32 @@ int main(void) {
     remove(csv_path);
     bl_free_trajectory(&numerical);
 
+    /* E238: CSV must preserve tiny and large finite measurement values.
+       Fixed nine-decimal formatting silently turns 1e-12 into zero, so a
+       serialized measurement can contradict the in-memory simulation. */
+    TrajectorySample precision_samples[] = {{
+        1e-12, 1e-13, 2e-13, 3.141592653589793, -1e12
+    }};
+    NumericalTrajectory precision = {0};
+    precision.samples = precision_samples;
+    precision.count = 1;
+    assert(bl_write_trajectory_csv(csv_path, &precision) == 0);
+    csv = fopen(csv_path, "r");
+    assert(csv != NULL);
+    assert(fgets(header, sizeof(header), csv) != NULL);
+    char row[256] = {0};
+    assert(fgets(row, sizeof(row), csv) != NULL);
+    double parsed[5] = {0};
+    assert(sscanf(row, "%lf,%lf,%lf,%lf,%lf", &parsed[0], &parsed[1],
+                  &parsed[2], &parsed[3], &parsed[4]) == 5);
+    fclose(csv);
+    remove(csv_path);
+    assert(parsed[0] == precision_samples[0].time_s);
+    assert(parsed[1] == precision_samples[0].x_m);
+    assert(parsed[2] == precision_samples[0].y_m);
+    assert(parsed[3] == precision_samples[0].vx_mps);
+    assert(parsed[4] == precision_samples[0].vy_mps);
+
     /* E198: an oversized time step crosses the entire positive arc.
        Linear endpoint interpolation returned impact_time=0 and max_height=0
        even though the exact constant-acceleration solution is positive. */
