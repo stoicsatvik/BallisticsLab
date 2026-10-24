@@ -114,3 +114,11 @@ Whenever the Unified Parallel Foundry advances BallisticsLab, record branch/comm
 A zero-speed generic constant-acceleration run emitted two origin/impact samples at identical t=0. A test-only commit reproduced the defect and failed Actions run 40086524406. The correction emits exactly one origin sample for zero speed and rejects positive subnormal inputs whose computed impact time underflows to a non-progressing timestamp. Regression tests check both cases. Final exact-head CI must pass for SUPPORTED status; no real-world launch/firing solutions or optimization were introduced.
 
 **Next:** Property-test strict sample-time monotonicity and energy/position invariants across finite input grids; compare sanitizer and compiler behavior. Keep physical scope educational and non-operational.
+
+## 2026-10-25 E238: generic CSV precision round-trip falsification
+
+A test-only deterministic fixture serialized a synthetic sample containing 1e-12 s, 1e-13 m, 2e-13 m, pi and -1e12. The existing fixed `%.9f` format rounded the small positive values to zero. Two exact test-only Actions workflows (40138707970, 40138714376) failed as expected. Changed only the generic CSV numeric formatting to `%.17g`, which supports binary64 round-trip through a correctly rounded decimal parser. The fixture now asserts exact parsed-double equality for all five fields; inherited physics and generic statistics tests pass. Implementation-head workflows 40138727401 and 40138730041 passed at commit `62c41cf3584ae6a2bb54726063aee21f4a053447`.
+
+**Claim:** Finite synthetic CSV precision preservation SUPPORTED IN SOFTWARE TESTS. This does not validate real-world measurements, operating conditions, or any firing solution. No firearm-specific inputs or operational guidance introduced.
+
+**Next:** Test locale-independent parsing and explicit rejection of nonfinite CSV samples; preserve generic educational scope. Draft PR #14 stacked on PR #13, never main.
