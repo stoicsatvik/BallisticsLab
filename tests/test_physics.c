@@ -62,6 +62,17 @@ int main(void) {
         bl_free_trajectory(&numerical);
     }
 
+    /* E217: a zero-energy initial state is a degenerate one-sample
+       trajectory. It must not emit two impact samples at the same time. */
+    assert(bl_simulate_vacuum(0.0, 45.0, 0.1, &numerical) == 0);
+    assert(numerical.count == 1);
+    assert(numerical.samples[0].time_s == 0.0);
+    assert(numerical.samples[0].y_m == 0.0);
+    assert(numerical.impact_time_s == 0.0);
+    assert(numerical.impact_x_m == 0.0);
+    assert(numerical.max_height_m == 0.0);
+    bl_free_trajectory(&numerical);
+
     assert(bl_simulate_vacuum(10.0, 45.0, 0.0, &numerical) == -1);
     assert(bl_simulate_vacuum(10.0, 0.0, 0.01, &numerical) == -1);
     assert(bl_simulate_vacuum(-1.0, 45.0, 0.01, &numerical) == -1);
