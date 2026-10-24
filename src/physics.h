@@ -34,9 +34,10 @@ TrajectoryResult bl_vacuum_trajectory(double speed_mps, double angle_deg);
 
 /*
  * Generic educational vacuum integrator. Uses velocity-Verlet kinematics for
- * constant gravitational acceleration and linearly interpolates the final
- * ground crossing. Returns 0 on success and -1 for invalid input/allocation
- * failure. Caller owns result->samples and must call bl_free_trajectory().
+ * constant gravitational acceleration and solves the ground-crossing
+ * event analytically within a step. Zero initial speed yields one origin
+ * sample; non-progressing floating-point events fail closed. Returns 0 on
+ * success and -1 for invalid input, unrepresentable state, or allocation failure. Caller owns result->samples and must call bl_free_trajectory().
  */
 int bl_simulate_vacuum(double speed_mps, double angle_deg, double dt_s,
                        NumericalTrajectory *result);
