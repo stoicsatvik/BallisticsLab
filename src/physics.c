@@ -98,6 +98,17 @@ int bl_simulate_vacuum(double speed_mps, double angle_deg, double dt_s,
             return -1;
         }
 
+        /* The exact apex may lie between sampled states, even when the
+           ground crossing happens in a later integration interval. */
+        const double apex_tau = vy / BL_G;
+        if (apex_tau > 0.0 && apex_tau < dt_s) {
+            const double apex_y = y + vy * apex_tau
+                - 0.5 * BL_G * apex_tau * apex_tau;
+            if (isfinite(apex_y) && apex_y > result->max_height_m) {
+                result->max_height_m = apex_y;
+            }
+        }
+
         if (next_y < 0.0) {
             /* Linear interpolation is wrong when a large step spans the
                entire flight: y=0 at both endpoints is not a straight line.
@@ -117,15 +128,6 @@ int bl_simulate_vacuum(double speed_mps, double angle_deg, double dt_s,
                 !isfinite(impact_vy)) {
                 bl_free_trajectory(result);
                 return -1;
-            }
-            /* The true apex may fall between two stored samples. */
-            const double apex_tau = vy / BL_G;
-            if (apex_tau > 0.0 && apex_tau < tau) {
-                const double apex_y = y + vy * apex_tau
-                    - 0.5 * BL_G * apex_tau * apex_tau;
-                if (isfinite(apex_y) && apex_y > result->max_height_m) {
-                    result->max_height_m = apex_y;
-                }
             }
             TrajectorySample impact = {impact_t, impact_x, 0.0, vx, impact_vy};
             if (append_sample(result, &capacity, impact) != 0) {
