@@ -64,6 +64,12 @@ int bl_simulate_vacuum(double speed_mps, double angle_deg, double dt_s,
 
     *result = (NumericalTrajectory){0};
     size_t capacity = 0;
+    /* A zero-speed initial state has zero flight duration. Return a single
+       origin sample, not two identical time-zero impact records. */
+    if (speed_mps == 0.0) {
+        return append_sample(result, &capacity,
+                             (TrajectorySample){0.0, 0.0, 0.0, 0.0, 0.0});
+    }
     const double theta = bl_deg_to_rad(angle_deg);
     const double vx = speed_mps * cos(theta);
     double vy = speed_mps * sin(theta);
@@ -124,7 +130,7 @@ int bl_simulate_vacuum(double speed_mps, double angle_deg, double dt_s,
             const double impact_t = t + tau;
             const double impact_x = x + vx * tau;
             const double impact_vy = vy - BL_G * tau;
-            if (!isfinite(impact_t) || !isfinite(impact_x) ||
+            if (!isfinite(impact_t) || impact_t <= t || !isfinite(impact_x) ||
                 !isfinite(impact_vy)) {
                 bl_free_trajectory(result);
                 return -1;
