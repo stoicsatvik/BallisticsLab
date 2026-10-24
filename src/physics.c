@@ -183,7 +183,7 @@ int bl_write_trajectory_csv(const char *path, const NumericalTrajectory *result)
     }
     for (size_t i = 0; i < result->count; ++i) {
         const TrajectorySample s = result->samples[i];
-        if (fprintf(file, "%.9f,%.9f,%.9f,%.9f,%.9f\n", s.time_s, s.x_m,
+        if (fprintf(file, "%.17g,%.17g,%.17g,%.17g,%.17g\n", s.time_s, s.x_m,
                     s.y_m, s.vx_mps, s.vy_mps) < 0) {
             fclose(file);
             return -1;
