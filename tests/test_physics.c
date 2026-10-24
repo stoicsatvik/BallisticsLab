@@ -46,6 +46,22 @@ int main(void) {
     remove(csv_path);
     bl_free_trajectory(&numerical);
 
+    /* E198: an oversized time step crosses the entire positive arc.
+       Linear endpoint interpolation returned impact_time=0 and max_height=0
+       even though the exact constant-acceleration solution is positive. */
+    for (size_t i = 0; i < 3; ++i) {
+        const double dt = (double[]){0.5, 2.0, 10.0}[i];
+        assert(bl_simulate_vacuum(10.0, 45.0, dt, &numerical) == 0);
+        assert(nearly_equal(numerical.impact_time_s,
+                            forty_five.flight_time_s, 1e-10));
+        assert(nearly_equal(numerical.impact_x_m,
+                            forty_five.range_m, 1e-9));
+        assert(nearly_equal(numerical.max_height_m,
+                            forty_five.max_height_m, 1e-9));
+        assert(numerical.count >= 2);
+        bl_free_trajectory(&numerical);
+    }
+
     assert(bl_simulate_vacuum(10.0, 45.0, 0.0, &numerical) == -1);
     assert(bl_simulate_vacuum(10.0, 0.0, 0.01, &numerical) == -1);
     assert(bl_simulate_vacuum(-1.0, 45.0, 0.01, &numerical) == -1);
