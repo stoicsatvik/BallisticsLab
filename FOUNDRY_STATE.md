@@ -108,3 +108,9 @@ This repository is public. Never commit private personal data, credentials, leak
 
 ## Foundry reporting
 Whenever the Unified Parallel Foundry advances BallisticsLab, record branch/commit/PR, exact increment, tests/validation, sources, claim status, safety boundary, blocker and highest-EV next move.
+
+## 2026-10-24 E217: degenerate event-time falsification
+
+A zero-speed generic constant-acceleration run emitted two origin/impact samples at identical t=0. A test-only commit reproduced the defect and failed Actions run 40086524406. The correction emits exactly one origin sample for zero speed and rejects positive subnormal inputs whose computed impact time underflows to a non-progressing timestamp. Regression tests check both cases. Final exact-head CI must pass for SUPPORTED status; no real-world launch/firing solutions or optimization were introduced.
+
+**Next:** Property-test strict sample-time monotonicity and energy/position invariants across finite input grids; compare sanitizer and compiler behavior. Keep physical scope educational and non-operational.
