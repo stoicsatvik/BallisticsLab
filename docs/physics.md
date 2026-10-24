@@ -96,3 +96,12 @@ Once that works and is tested, generic aerodynamic forces can be introduced.
 3. Which assumptions make the current range equation unrealistic?
 4. Why is a numerical simulator useful when a closed-form equation already exists?
 5. How would measurement uncertainty propagate into the calculated trajectory?
+
+
+## E198 — Coarse-step event detection (2026-10-24)
+
+The fixed-step constant-gravity integrator previously used **linear interpolation** of altitude to detect the final ground crossing. That interpolation is not consistent with the model's quadratic altitude law when one time step spans a substantial fraction of the flight. In the synthetic classroom fixture (initial speed 10 m/s, 45°, dt=10 s), it returned a **zero** flight time even though the analytical model predicts a positive value. A similarly coarse step can miss the true apex entirely.
+
+The numerical event calculation now solves the constant-acceleration quadratic **within** the crossing interval and checks the analytical apex within every integration interval. Regression fixtures use dt=0.5, 2.0 and 10.0 s and compare against the analytical vacuum reference. This does **not** validate aerodynamic forces, real-world trajectories, or any targeting use. Extreme floating-point inputs remain subject to explicit finite-state and sample-cap guards.
+
+The event time is model-exact under the stated idealization; stored trajectory samples remain fixed-step. In future variable-force simulations, an event solver must be revalidated against that different differential equation rather than reusing this constant-acceleration root blindly.
