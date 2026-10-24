@@ -99,10 +99,34 @@ int bl_simulate_vacuum(double speed_mps, double angle_deg, double dt_s,
         }
 
         if (next_y < 0.0) {
-            const double fraction = y / (y - next_y);
-            const double impact_t = t + fraction * dt_s;
-            const double impact_x = x + fraction * (next_x - x);
-            const double impact_vy = vy - BL_G * fraction * dt_s;
+            /* Linear interpolation is wrong when a large step spans the
+               entire flight: y=0 at both endpoints is not a straight line.
+               Solve the constant-acceleration crossing within this step. */
+            const double root = hypot(vy, sqrt(2.0 * BL_G) * sqrt(y));
+            const double tau = vy >= 0.0
+                ? (vy + root) / BL_G
+                : (2.0 * y) / (root - vy);
+            if (!isfinite(tau) || tau < 0.0 || tau > dt_s) {
+                bl_free_trajectory(result);
+                return -1;
+            }
+            const double impact_t = t + tau;
+            const double impact_x = x + vx * tau;
+            const double impact_vy = vy - BL_G * tau;
+            if (!isfinite(impact_t) || !isfinite(impact_x) ||
+                !isfinite(impact_vy)) {
+                bl_free_trajectory(result);
+                return -1;
+            }
+            /* The true apex may fall between two stored samples. */
+            const double apex_tau = vy / BL_G;
+            if (apex_tau > 0.0 && apex_tau < tau) {
+                const double apex_y = y + vy * apex_tau
+                    - 0.5 * BL_G * apex_tau * apex_tau;
+                if (isfinite(apex_y) && apex_y > result->max_height_m) {
+                    result->max_height_m = apex_y;
+                }
+            }
             TrajectorySample impact = {impact_t, impact_x, 0.0, vx, impact_vy};
             if (append_sample(result, &capacity, impact) != 0) {
                 bl_free_trajectory(result);
