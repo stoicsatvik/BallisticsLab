@@ -122,3 +122,13 @@ A test-only deterministic fixture serialized a synthetic sample containing 1e-12
 **Claim:** Finite synthetic CSV precision preservation SUPPORTED IN SOFTWARE TESTS. This does not validate real-world measurements, operating conditions, or any firing solution. No firearm-specific inputs or operational guidance introduced.
 
 **Next:** Test locale-independent parsing and explicit rejection of nonfinite CSV samples; preserve generic educational scope. Draft PR #14 stacked on PR #13, never main.
+
+## 2026-10-25 E256: reject nonfinite generic CSV measurements before file creation
+
+**Falsification:** 15 deterministic synthetic records placed NaN, positive infinity and negative infinity into each of five measurement columns. A sixteenth mixed two-record case placed an invalid value after a valid record. The old serializer returned success and created a file containing nonfinite text. Test-only commit `e55a98398d2801165c7b08c66033e5d0c56fb80d` failed [Actions 40181196351](https://github.com/stoicsatvik/BallisticsLab/actions/runs/40181196351) as expected.
+
+**Correction:** Validate every numeric field of every sample before opening the destination. Invalid records now return an error without creating a partial output file. The existing finite binary64 precision/round-trip behavior remains unchanged. Implementation commit `b20d950aafaffe681c7667a33bbca088cdcf3fde` passed [Actions 40181215820](https://github.com/stoicsatvik/BallisticsLab/actions/runs/40181215820). All inherited C tests passed.
+
+**Claim:** Nonfinite generic CSV rejection SUPPORTED IN DETERMINISTIC SOFTWARE TESTS. Locale-specific formatting, filesystem race conditions, disk-full/partial-write cleanup and arbitrary input path policy remain unverified. No physical measurements, real-world firing inputs or weapon-performance optimization.
+
+**Next:** Test locale handling and failure cleanup for write errors; do not turn the educational simulator into an operational weapon tool. Draft PR stacked on E238, never main.
