@@ -132,3 +132,12 @@ A test-only deterministic fixture serialized a synthetic sample containing 1e-12
 **Claim:** Nonfinite generic CSV rejection SUPPORTED IN DETERMINISTIC SOFTWARE TESTS. Locale-specific formatting, filesystem race conditions, disk-full/partial-write cleanup and arbitrary input path policy remain unverified. No physical measurements, real-world firing inputs or weapon-performance optimization.
 
 **Next:** Test locale handling and failure cleanup for write errors; do not turn the educational simulator into an operational weapon tool. Draft PR stacked on E238, never main.
+
+
+## 2026-10-26 E274: analytic invariant stress over 150 generic numerical cases
+
+**Exact-head [Actions 40235893043](https://github.com/stoicsatvik/BallisticsLab/actions/runs/40235893043) SUCCESS.** Five synthetic speeds × five angles × six time steps produced 150 cases and 12,094 sample states. Maximum normalized absolute residuals: flight time 2.205e-14, displacement 5.362e-14, apex 4.322e-14, per-sample mechanical energy 6.403e-14. Every sample time increased; the final event height was zero. Full experiment memo: `docs/E274_GENERIC_INTEGRATOR_INVARIANTS_20261026.md`.
+
+**Claim:** existing generic constant-acceleration integrator agrees with its own analytic model in tested finite synthetic configurations, SUPPORTED. No empirical projectile measurements, aerodynamic validation, global numerical bound or operational weapons guidance.
+
+**Next:** cross-compiler numeric portability and bounded extreme-value controls, with no targeting or real-world firing optimization. Draft PR #16 stacked on #15, never main.
