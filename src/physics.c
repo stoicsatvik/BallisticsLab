@@ -173,6 +173,15 @@ int bl_write_trajectory_csv(const char *path, const NumericalTrajectory *result)
         result->count == 0) {
         return -1;
     }
+    /* E256: validate the complete batch before opening the destination.
+       A later NaN/Inf must not leave a partial, apparently valid CSV. */
+    for (size_t i = 0; i < result->count; ++i) {
+        const TrajectorySample s = result->samples[i];
+        if (!isfinite(s.time_s) || !isfinite(s.x_m) || !isfinite(s.y_m) ||
+            !isfinite(s.vx_mps) || !isfinite(s.vy_mps)) {
+            return -1;
+        }
+    }
     FILE *file = fopen(path, "w");
     if (file == NULL) {
         return -1;

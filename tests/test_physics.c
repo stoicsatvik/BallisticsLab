@@ -72,6 +72,37 @@ int main(void) {
     assert(parsed[3] == precision_samples[0].vx_mps);
     assert(parsed[4] == precision_samples[0].vy_mps);
 
+    /* E256: invalid measurements must fail closed BEFORE creating a CSV.
+       nan/inf strings are not finite measurements and poison downstream data. */
+    const TrajectorySample invalid_samples[] = {
+        {NAN, 2, 3, 4, 5}, {1, NAN, 3, 4, 5},
+        {1, 2, NAN, 4, 5}, {1, 2, 3, NAN, 5},
+        {1, 2, 3, 4, NAN}, {INFINITY, 2, 3, 4, 5},
+        {1, INFINITY, 3, 4, 5}, {1, 2, INFINITY, 4, 5},
+        {1, 2, 3, INFINITY, 5}, {1, 2, 3, 4, INFINITY},
+        {-INFINITY, 2, 3, 4, 5}, {1, -INFINITY, 3, 4, 5},
+        {1, 2, -INFINITY, 4, 5}, {1, 2, 3, -INFINITY, 5},
+        {1, 2, 3, 4, -INFINITY},
+    };
+    for (size_t i = 0; i < sizeof(invalid_samples)/sizeof(invalid_samples[0]); ++i) {
+        NumericalTrajectory bad = {0};
+        bad.samples = (TrajectorySample *)&invalid_samples[i];
+        bad.count = 1;
+        remove(csv_path);
+        assert(bl_write_trajectory_csv(csv_path, &bad) == -1);
+        FILE *unwanted = fopen(csv_path, "r");
+        assert(unwanted == NULL);
+    }
+    TrajectorySample mixed_samples[] = {
+        {0.0, 0.0, 0.0, 0.0, 0.0},
+        {1.0, 2.0, 3.0, INFINITY, 5.0}
+    };
+    NumericalTrajectory mixed = {0};
+    mixed.samples = mixed_samples;
+    mixed.count = 2;
+    assert(bl_write_trajectory_csv(csv_path, &mixed) == -1);
+    assert(fopen(csv_path, "r") == NULL);
+
     /* E198: an oversized time step crosses the entire positive arc.
        Linear endpoint interpolation returned impact_time=0 and max_height=0
        even though the exact constant-acceleration solution is positive. */
