@@ -1,0 +1,36 @@
+name: E290 generic numerical cross-compiler audit
+on:
+  push:
+    branches: ["foundry/e290-cross-compiler-numerical-portability-20261026"]
+  pull_request:
+    paths:
+      - "src/physics.c"
+      - "tests/e290_compiler_trace.c"
+      - "tools/e290_compiler_portability.py"
+      - ".github/workflows/e290-cross-compiler.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  cross-compiler:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Existing educational regression suite
+        run: make test
+      - name: GCC/Clang O0/O2/O3 full-state comparison
+        run: python tools/e290_compiler_portability.py --output e290_report.json
+      - name: Preserve numerical receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e290-cross-compiler-numerical-evidence
+          path: e290_report.json
+          if-no-files-found: ignore
+          retention-days: 30
