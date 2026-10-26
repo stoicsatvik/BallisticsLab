@@ -141,3 +141,12 @@ A test-only deterministic fixture serialized a synthetic sample containing 1e-12
 **Claim:** existing generic constant-acceleration integrator agrees with its own analytic model in tested finite synthetic configurations, SUPPORTED. No empirical projectile measurements, aerodynamic validation, global numerical bound or operational weapons guidance.
 
 **Next:** cross-compiler numeric portability and bounded extreme-value controls, with no targeting or real-world firing optimization. Draft PR #16 stacked on #15, never main.
+
+## 2026-10-26 E290: cross-compiler generic numerical portability
+
+- **Branch:** `foundry/e290-cross-compiler-numerical-portability-20261026`; draft PR #17, stacked on E274.
+- **Exact-head Actions:** [40287387058](https://github.com/stoicsatvik/BallisticsLab/actions/runs/40287387058), SUCCESS; the existing `make test` suite also passed.
+- **Six compiler configurations:** GCC 15.2.0 and Clang 21.1.8 at O0/O2/O3 on one Linux x86_64 GitHub runner. Each executed 150 deterministic classroom cases plus nine edge controls.
+- **12,095 emitted numerical states per configuration**, including the zero-speed origin control. Every comparison to GCC O0 matched status and sample count; all **60,952 compared floating-point fields** per configuration were binary64-identical after 17-digit decimal round-trip (0 differing fields, maximum normalized difference 0).
+- **Claim: SUPPORTED for this exact synthetic runner/toolchain/flag/input set.** This is not cross-architecture portability, a global error bound, or empirical physical accuracy.
+- **Next:** Test independent CPU/OS/ABI/compiler-libm combinations and adversarial finite-value regimes, with no operational targeting or real-world firing solutions. Do not mistake a compiler agreement for a validated physical model.
