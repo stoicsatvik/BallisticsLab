@@ -1,3 +1,11 @@
+/* The finite-input and progress guards below rely on IEEE-style NaN/Inf
+ * classification. Fast-math/finite-math-only compilers may assume such
+ * values never occur and optimize away isfinite() checks. Fail at build time.
+ * This is a generic numerical integrity rule, not a physical validation. */
+#if defined(__FAST_MATH__) || (defined(__FINITE_MATH_ONLY__) && __FINITE_MATH_ONLY__)
+#error "BallisticsLab finite-input validation requires non-fast-math IEEE semantics"
+#endif
+
 #include "physics.h"
 
 #include <math.h>

@@ -13,3 +13,5 @@ jobs:
         run: make
       - name: Test
         run: make test
+      - name: E308 strict finite-math contract (GCC/Clang)
+        run: python3 tools/e308_finite_math_contract.py
