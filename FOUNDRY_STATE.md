@@ -150,3 +150,12 @@ A test-only deterministic fixture serialized a synthetic sample containing 1e-12
 - **12,095 emitted numerical states per configuration**, including the zero-speed origin control. Every comparison to GCC O0 matched status and sample count; all **60,952 compared floating-point fields** per configuration were binary64-identical after 17-digit decimal round-trip (0 differing fields, maximum normalized difference 0).
 - **Claim: SUPPORTED for this exact synthetic runner/toolchain/flag/input set.** This is not cross-architecture portability, a global error bound, or empirical physical accuracy.
 - **Next:** Test independent CPU/OS/ABI/compiler-libm combinations and adversarial finite-value regimes, with no operational targeting or real-world firing solutions. Do not mistake a compiler agreement for a validated physical model.
+
+## 2026-10-28 | E346: Monte Carlo draw-integrity falsification
+
+- Branch: `foundry/e346-monte-carlo-input-overflow-20261028`; draft PR #19 stacked on E308 #18.
+- A deterministic seed-7 Gaussian draw with finite `DBL_MAX` mean/standard deviation overflows. The original Monte Carlo routine checked the callback's output but not the intermediate draw, allowing a constant callback to mask nonfinite data.
+- Fixed: fail closed on nonfinite draws before invoking callbacks; return NaN for unrepresentable normal samples; reject sample-count allocation overflow; guard the statistics translation unit against unsafe fast-math semantics. Added overflow-negative and valid-constant regression controls.
+- Exact-head C CI at initial documented head `c0cb86fe3923155e88274fb44cf89cafdc62967e`: Actions #40603322566 and #40603335740 **SUCCESS** (build, tests, E308 GCC/Clang finite-math checks). Final head after this state update requires its own CI confirmation.
+- **Claim:** finite-draw integrity SUPPORTED IN TESTED SOFTWARE; cross-toolchain portability, empirical measurement calibration and physical accuracy NOT YET PROVEN. No operational weapon model, firing solution, target optimization or physical data.
+- **Next:** independently verify numerical behavior on additional toolchains/ABIs and compare measured uncertainty distributions against the generic Monte Carlo assumptions. No production deployment or main merge.

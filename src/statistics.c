@@ -1,3 +1,7 @@
+#if defined(__FAST_MATH__) || (defined(__FINITE_MATH_ONLY__) && __FINITE_MATH_ONLY__)
+#error "Statistics finite-input validation requires non-fast-math IEEE semantics"
+#endif
+
 #include "statistics.h"
 
 #include <math.h>
@@ -18,7 +22,7 @@ static double percentile_sorted(const double *values, size_t count, double p) {
 }
 
 int stats_summary(const double *values, size_t count, StatsSummary *out) {
-    if (!values || !out || count < 2) return -1;
+    if (!values || !out || count < 2 || count > SIZE_MAX / sizeof(double)) return -1;
 
     /* Center before accumulating: ordinary Welford updates can lose
        low-order differences when samples have a large common offset. */
@@ -82,7 +86,8 @@ double stats_rng_normal(StatsRng *rng, double mean, double stddev) {
     const double u2 = stats_rng_uniform01(rng);
     if (u1 <= 0.0) u1 = 0x1p-53;
     const double z = sqrt(-2.0 * log(u1)) * cos(6.28318530717958647692 * u2);
-    return mean + stddev * z;
+    const double sample = mean + stddev * z;
+    return isfinite(sample) ? sample : NAN;
 }
 
 int stats_monte_carlo_normal(
@@ -105,6 +110,12 @@ int stats_monte_carlo_normal(
     stats_rng_seed(&rng, seed);
     for (size_t i = 0; i < count; ++i) {
         const double sample = stats_rng_normal(&rng, input_mean, input_stddev);
+        /* A callback must not conceal an invalid random draw by returning a
+           finite constant or clamping an overflowed input. */
+        if (!isfinite(sample)) {
+            free(outputs);
+            return -1;
+        }
         const double output = transform(sample, context);
         if (!isfinite(output)) {
             free(outputs);

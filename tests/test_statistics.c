@@ -14,6 +14,12 @@ static double affine_transform(double sample, void *context) {
     return scale * sample + 1.0;
 }
 
+static double constant_transform(double sample, void *context) {
+    (void)sample;
+    (void)context;
+    return 1.0;
+}
+
 static double invalid_transform(double sample, void *context) {
     (void)sample;
     (void)context;
@@ -86,5 +92,19 @@ int main(void) {
     assert(stats_monte_carlo_normal(1, 10, 0.0, -1.0, affine_transform, (void *)&scale, &summary) != 0);
     assert(stats_monte_carlo_normal(1, 10, 0.0, 1.0, NULL, NULL, &summary) != 0);
     assert(stats_monte_carlo_normal(1, 10, 0.0, 1.0, invalid_transform, NULL, &summary) != 0);
+
+    /* E346: finite Gaussian parameters do not guarantee finite draws.
+       Seed 7's first normal deviate is positive; DBL_MAX + DBL_MAX*z
+       overflows. A constant callback used to hide this and report success. */
+    stats_rng_seed(&a, 7);
+    assert(isnan(stats_rng_normal(&a, DBL_MAX, DBL_MAX)));
+    assert(stats_monte_carlo_normal(7, 16, DBL_MAX, DBL_MAX,
+                                    constant_transform, NULL, &summary) != 0);
+    /* Legitimate deterministic constant output remains supported. */
+    assert(stats_monte_carlo_normal(7, 16, 2.0, 0.0,
+                                    constant_transform, NULL, &summary) == 0);
+    assert(summary.mean == 1.0 && summary.sample_variance == 0.0);
+    /* Invalid cardinality must fail before any pointer arithmetic/allocation. */
+    assert(stats_summary(values, SIZE_MAX, &summary) != 0);
     return 0;
 }
