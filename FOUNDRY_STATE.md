@@ -159,3 +159,12 @@ A test-only deterministic fixture serialized a synthetic sample containing 1e-12
 - Exact-head C CI at initial documented head `c0cb86fe3923155e88274fb44cf89cafdc62967e`: Actions #40603322566 and #40603335740 **SUCCESS** (build, tests, E308 GCC/Clang finite-math checks). Final head after this state update requires its own CI confirmation.
 - **Claim:** finite-draw integrity SUPPORTED IN TESTED SOFTWARE; cross-toolchain portability, empirical measurement calibration and physical accuracy NOT YET PROVEN. No operational weapon model, firing solution, target optimization or physical data.
 - **Next:** independently verify numerical behavior on additional toolchains/ABIs and compare measured uncertainty distributions against the generic Monte Carlo assumptions. No production deployment or main merge.
+
+
+## 2026-10-28 | E365: exact zero-height endpoint event
+
+- **Question:** Does a generic constant-acceleration step landing at exactly zero height produce a single terminal event, or does a strict negative-height crossing check reject it?
+- **Test-first falsification:** with synthetic speed 10, angle 15 degrees, and `dt` equal to the analytic flight time, the next-height calculation is exactly zero in the tested C environment. The old strict `next_y < 0` path appends the zero-height step, then tries to add an impact at the same timestamp and fails. Test-only commit `159799db5dfc1f954a9aa36aa747bd7357ffbb92` produced expected-failing Actions runs #40706413561 and #40706440102.
+- **Correction:** explicitly terminate on an exact zero-height step endpoint, emitting one final record and setting the terminal time/position. Implementation commit `ef999b2ac26b1d9a3a80b89f688eecba40e882cf` passed the first exact-head CI run #40706646119. The additional final-head checks after this state update must be inspected separately.
+- **Claim:** exact-step event handling SUPPORTED IN TESTED SOFTWARE. No physical measurement, real-world firing solution, targeting or weapon-performance inference.
+- **Next:** stress near-zero positive/negative crossing residuals and independent compilers/ABIs, preserving strict time monotonicity. Avoid numerical changes without a new counterexample.
