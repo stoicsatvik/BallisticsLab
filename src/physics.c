@@ -123,6 +123,22 @@ int bl_simulate_vacuum(double speed_mps, double angle_deg, double dt_s,
             }
         }
 
+        /* An exactly zero-height endpoint is already the final event.
+           Waiting for a negative next step creates a zero-duration
+           duplicate and the later root fails the strict time guard. */
+        if (next_y == 0.0) {
+            const TrajectorySample impact = {
+                next_t, next_x, 0.0, vx, next_vy
+            };
+            if (append_sample(result, &capacity, impact) != 0) {
+                bl_free_trajectory(result);
+                return -1;
+            }
+            result->impact_time_s = next_t;
+            result->impact_x_m = next_x;
+            return 0;
+        }
+
         if (next_y < 0.0) {
             /* Linear interpolation is wrong when a large step spans the
                entire flight: y=0 at both endpoints is not a straight line.
