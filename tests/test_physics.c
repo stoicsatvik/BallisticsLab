@@ -119,6 +119,18 @@ int main(void) {
         bl_free_trajectory(&numerical);
     }
 
+    /* E365: an exact zero-height step endpoint is the impact event.
+       A strict next_y < 0 test emits a duplicate zero-height sample,
+       then tries to append an impact at the same timestamp and fails. */
+    const TrajectoryResult exact_boundary = bl_vacuum_trajectory(10.0, 15.0);
+    assert(bl_simulate_vacuum(10.0, 15.0,
+                              exact_boundary.flight_time_s, &numerical) == 0);
+    assert(numerical.count == 2);
+    assert(numerical.samples[1].time_s == exact_boundary.flight_time_s);
+    assert(numerical.samples[1].y_m == 0.0);
+    assert(numerical.impact_time_s == exact_boundary.flight_time_s);
+    bl_free_trajectory(&numerical);
+
     /* E217: a zero-energy initial state is a degenerate one-sample
        trajectory. It must not emit two impact samples at the same time. */
     assert(bl_simulate_vacuum(0.0, 45.0, 0.1, &numerical) == 0);
