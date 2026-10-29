@@ -168,3 +168,13 @@ A test-only deterministic fixture serialized a synthetic sample containing 1e-12
 - **Correction:** explicitly terminate on an exact zero-height step endpoint, emitting one final record and setting the terminal time/position. Implementation commit `ef999b2ac26b1d9a3a80b89f688eecba40e882cf` passed the first exact-head CI run #40706646119. The additional final-head checks after this state update must be inspected separately.
 - **Claim:** exact-step event handling SUPPORTED IN TESTED SOFTWARE. No physical measurement, real-world firing solution, targeting or weapon-performance inference.
 - **Next:** stress near-zero positive/negative crossing residuals and independent compilers/ABIs, preserving strict time monotonicity. Avoid numerical changes without a new counterexample.
+
+## E391 — 2026-10-29: ULP-neighbour precision boundary
+
+- Branch: `research/e391-ulp-impact-boundary-20261029`; draft PR #21, stacked on E365 #20.
+- Experiment: 81 deterministic binary64 neighbours around half/full/double analytical event durations, across three synthetic speeds and angles. No weapon-specific modeling.
+- Expected-red CI #40873688028: an all-neighbour success assertion failed for one near-half-flight fixture.
+- Successful exact-head CI #40873788048: 80 accepted within <= 2.23e-16 maximum scaled reported errors; 1 rejected with cleared samples. The fail-closed behavior is preserved, not hidden.
+- Interpretation: all-neighbour acceptance REJECTED on tested GCC/Ubuntu. The 80 successful numerical contracts SUPPORTED IN TESTED SOFTWARE; exact rejected C guard and cross-compiler/ABI invariance NOT YET PROVEN.
+- Evidence: `research/E391_ULP_BOUNDARY_PRECISION_20261029.md`, `tests/test_e391_ulp_boundary.c`, `make test`.
+- Highest-EV next move: instrument rejected event guard, independently compare strict GCC/Clang and long-double reference. Never invent a later timestamp to satisfy monotonicity.
