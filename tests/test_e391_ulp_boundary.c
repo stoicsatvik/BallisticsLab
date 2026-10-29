@@ -81,6 +81,9 @@ int main(void) {
     }
     assert(cases == 81);
     printf("E391_CASES %zu\n", cases);
+    printf("E391_ACCEPTED %zu\n", accepted);
+    printf("E391_REJECTED %zu\n", rejected);
+    assert(accepted + rejected == cases);
     printf("E391_MAX_SCALED_TIME_ERROR %.17g\n", max_t_error);
     printf("E391_MAX_SCALED_X_ERROR %.17g\n", max_x_error);
     printf("E391_MAX_SCALED_APEX_ERROR %.17g\n", max_h_error);
