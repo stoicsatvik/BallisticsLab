@@ -187,3 +187,13 @@ A test-only deterministic fixture serialized a synthetic sample containing 1e-12
 - Six compiler/optimization configurations (GCC/Clang × O0/O2/O3) agreed exactly on this diagnostic. Exact-code CI [#40991826690](https://github.com/stoicsatvik/BallisticsLab/actions/runs/40991826690) and standard C CI [#40991826688](https://github.com/stoicsatvik/BallisticsLab/actions/runs/40991826688) SUCCESS on implementation head `2c37328641055ab99711ab20e2a2bec1aca37d5a`. Full inherited make tests and E308 finite-math contract passed. See `research/E409_SUBULP_EVENT_GUARD_20261030.md`.
 - **SUPPORTED IN TESTED SOFTWARE:** unrepresentable sub-ULP terminal event explains the fail-closed fixture. **NOT YET PROVEN:** alternative event representation correctness, independent ABI/CPU portability, empirical physics. Production numerical behavior unchanged.
 - **Next:** test alternative event representations against independent high-precision oracles on unseen finite cases, preserving fail-closed semantics and educational/non-operational scope.
+
+
+## E429 — 2026-10-30: 1,080-case binary64 terminal-event oracle
+
+- Branch `research/e429-subulp-grid-oracle-20261030`, stacked on E409 draft PR #22.
+- Two independently executed source-equivalent Python/JavaScript arithmetic mirrors agreed: 1,070 accepted, six exact-zero endpoints, four positive sub-ULP strict-time rejections, zero other failures across 1,080 frozen classroom configurations.
+- All four rejections occurred at (magnitude, angle, offset) = (50,15,1/2) or (100,15,1/2). Positive event offsets were ~0.3091 ULP; a 90-digit Decimal oracle confirmed no later representable binary64 timestamp in all four cases and zero accepted cases with this particular oracle contradiction.
+- **SUPPORTED IN LOCAL SYNTHETIC MIRRORS**: this is a narrow representability boundary, not a general root failure. **NOT YET PROVEN**: exact C behavior for all cases, cross-platform generality, correctness of alternative timestamp encodings, empirical physics.
+- Committed script `research/e429_subulp_grid_oracle.py` and report `research/E429_SUBULP_GRID_ORACLE_20261030.md`; exact committed-source Python/CI execution remains outstanding.
+- **Next:** compare a two-component or extended-precision event-time representation against fail-closed binary64 on unseen cases, with monotonicity and serialization invariants. No weapon targeting or operational modeling.
