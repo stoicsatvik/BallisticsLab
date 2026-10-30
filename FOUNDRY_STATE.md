@@ -178,3 +178,12 @@ A test-only deterministic fixture serialized a synthetic sample containing 1e-12
 - Interpretation: all-neighbour acceptance REJECTED on tested GCC/Ubuntu. The 80 successful numerical contracts SUPPORTED IN TESTED SOFTWARE; exact rejected C guard and cross-compiler/ABI invariance NOT YET PROVEN.
 - Evidence: `research/E391_ULP_BOUNDARY_PRECISION_20261029.md`, `tests/test_e391_ulp_boundary.c`, `make test`.
 - Highest-EV next move: instrument rejected event guard, independently compare strict GCC/Clang and long-double reference. Never invent a later timestamp to satisfy monotonicity.
+
+
+## E409 — 2026-10-30: sub-ULP event guard discriminated
+
+- Branch `research/e409-subulp-event-guard-20261030`; stacked draft PR #22 on E391 #21.
+- Frozen E391 single rejected synthetic case (100 / 15 degrees / one ULP below half flight) reproduced with unchanged production `bl_simulate_vacuum`. A stepwise arithmetic mirror verifies the earlier finite/progress/root predicates and isolates the strict `impact_t > t` failure: positive `tau=2.7453263166110802e-16` < half of `ulp(t)=8.8817841970012523e-16`, so binary64 `t+tau==t`. A long-double event difference remains positive.
+- Six compiler/optimization configurations (GCC/Clang × O0/O2/O3) agreed exactly on this diagnostic. Exact-code CI [#40991826690](https://github.com/stoicsatvik/BallisticsLab/actions/runs/40991826690) and standard C CI [#40991826688](https://github.com/stoicsatvik/BallisticsLab/actions/runs/40991826688) SUCCESS on implementation head `2c37328641055ab99711ab20e2a2bec1aca37d5a`. Full inherited make tests and E308 finite-math contract passed. See `research/E409_SUBULP_EVENT_GUARD_20261030.md`.
+- **SUPPORTED IN TESTED SOFTWARE:** unrepresentable sub-ULP terminal event explains the fail-closed fixture. **NOT YET PROVEN:** alternative event representation correctness, independent ABI/CPU portability, empirical physics. Production numerical behavior unchanged.
+- **Next:** test alternative event representations against independent high-precision oracles on unseen finite cases, preserving fail-closed semantics and educational/non-operational scope.
