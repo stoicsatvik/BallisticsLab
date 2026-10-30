@@ -1,0 +1,21 @@
+name: E409 sub-ULP event guard (GCC and Clang)
+on:
+  push:
+  pull_request:
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Cross-compiler and optimization-level guard diagnosis
+        shell: bash
+        run: |
+          set -euo pipefail
+          for compiler in gcc clang; do
+            for opt in 0 2 3; do
+              echo "E409_COMPILER=${compiler} OPT=O${opt}"
+              "${compiler}" -std=c11 -Wall -Wextra -Werror -pedantic "-O${opt}" \
+                tests/test_e409_ulp_guard.c src/physics.c -lm -o /tmp/e409_guard
+              /tmp/e409_guard
+            done
+          done
