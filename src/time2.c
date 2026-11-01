@@ -40,3 +40,15 @@ int bl_time2_compare(BlTime2 a, BlTime2 b) {
     if (a.lo > b.lo) return 1;
     return 0;
 }
+
+int bl_time2_add_strict(BlTime2 a, BlTime2 delta, BlTime2 *out) {
+    BlTime2 base, step, candidate;
+    const BlTime2 zero = {0.0, 0.0};
+    if (!out || !bl_time2_make(a.hi, a.lo, &base) ||
+        !bl_time2_make(delta.hi, delta.lo, &step)) return 0;
+    const int expected = bl_time2_compare(step, zero);
+    if (!bl_time2_add(base, step, &candidate)) return 0;
+    if (bl_time2_compare(candidate, base) != expected) return 0;
+    *out = candidate;
+    return 1;
+}
