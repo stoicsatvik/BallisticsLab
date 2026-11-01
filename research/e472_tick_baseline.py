@@ -69,7 +69,7 @@ def benchmark(compiler="gcc", seed=472, samples=4096):
         assert all(row["wrong_direction"] == 0 for row in metrics.values())
         assert sum(row["accepted"] + row["rejected"] for row in metrics.values()) == samples * 2
         ranges = {unit: {"ticks_per_second": rate, "max_positive_years_365d": I64_MAX / (rate * YEAR_SECONDS), "fits_100_year_horizon": horizon // (NS // rate) <= I64_MAX} for unit, rate in (("seconds", 1), ("milliseconds", 1_000), ("microseconds", 1_000_000), ("nanoseconds", NS))}
-        return {"compiler": compiler, "seed": seed, "samples": samples, "horizon_years": 100, "int64_nanosecond_ticks_exact": samples, "time2": metrics, "signed_int64_range": ranges, "serialized_bytes_int64": 8, "serialized_bytes_time2": ctypes.sizeof(Time2)}
+        return {"compiler": compiler, "seed": seed, "samples": samples, "horizon_years": 100, "int64_nanosecond_ticks_exact": samples, "time2": metrics, "signed_int64_range": ranges, "native_bytes_int64": 8, "native_bytes_time2": ctypes.sizeof(Time2)}
 
 if __name__ == "__main__":
     for compiler in sys.argv[1:] or ("gcc", "clang"):
