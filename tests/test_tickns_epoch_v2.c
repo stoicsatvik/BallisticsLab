@@ -12,6 +12,12 @@ static const unsigned char NS_B[16] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13
 static const unsigned char NS_ZERO[16] = {0};
 static const uint32_t COLLIDED_ID = UINT32_C(1781595200);
 
+static void assert_same_value(const BlEpochTickNsV2 *left, const BlEpochTickNsV2 *right) {
+    assert(left->tick.nanoseconds == right->tick.nanoseconds);
+    assert(left->epoch_id == right->epoch_id);
+    assert(memcmp(left->namespace_id, right->namespace_id, 16) == 0);
+}
+
 static void test_identity(void) {
     BlEpochTickNsV2 a, b, c;
     assert(bl_epoch_v2_init((BlTickNs){100}, NS_A, COLLIDED_ID, &a));
@@ -25,22 +31,22 @@ static void test_identity(void) {
     assert(bl_epoch_v2_difference(a, c, &difference) && difference == 95);
     BlEpochTickNsV2 sentinel = b;
     assert(!bl_epoch_v2_init((BlTickNs){0}, NS_ZERO, 1, &sentinel));
-    assert(memcmp(&sentinel, &b, sizeof(b)) == 0);
+    assert_same_value(&sentinel, &b);
     assert(!bl_epoch_v2_init((BlTickNs){0}, NS_A, 0, &sentinel));
-    assert(memcmp(&sentinel, &b, sizeof(b)) == 0);
+    assert_same_value(&sentinel, &b);
     assert(!bl_epoch_v2_init((BlTickNs){0}, NS_A, 1, NULL));
     assert(!bl_epoch_v2_init((BlTickNs){0}, NULL, 1, &sentinel));
     assert(!bl_epoch_v2_difference(a, b, NULL));
     assert(!bl_epoch_v2_difference(a, (BlEpochTickNsV2){0}, &difference));
     assert(difference == 95);
     assert(!bl_epoch_v2_add((BlEpochTickNsV2){0}, 1, &sentinel));
-    assert(memcmp(&sentinel, &b, sizeof(b)) == 0);
+    assert_same_value(&sentinel, &b);
     assert(bl_epoch_v2_add(a, 1, &sentinel));
     assert(sentinel.tick.nanoseconds == 101 && sentinel.epoch_id == COLLIDED_ID);
     assert(memcmp(sentinel.namespace_id, NS_A, 16) == 0);
     sentinel = b;
     assert(!bl_epoch_v2_add((BlEpochTickNsV2){.tick={INT64_MAX}, .namespace_id={1}, .epoch_id=1}, 1, &sentinel));
-    assert(memcmp(&sentinel, &b, sizeof(b)) == 0);
+    assert_same_value(&sentinel, &b);
     assert(!bl_epoch_v2_difference((BlEpochTickNsV2){.tick={INT64_MAX}, .namespace_id={1}, .epoch_id=1},
                                    (BlEpochTickNsV2){.tick={INT64_MIN}, .namespace_id={1}, .epoch_id=1}, &difference));
     assert(difference == 95);
@@ -63,11 +69,11 @@ static void test_wire(void) {
     assert(memcmp(decoded.namespace_id, NS_A, 16) == 0);
     decoded = sentinel;
     assert(!bl_epoch_v2_decode(bytes, sizeof(bytes), NS_B, COLLIDED_ID, &decoded));
-    assert(memcmp(&decoded, &sentinel, sizeof(decoded)) == 0);
+    assert_same_value(&decoded, &sentinel);
     assert(!bl_epoch_v2_decode(bytes, sizeof(bytes), NS_A, COLLIDED_ID + 1, &decoded));
-    assert(memcmp(&decoded, &sentinel, sizeof(decoded)) == 0);
+    assert_same_value(&decoded, &sentinel);
     assert(!bl_epoch_v2_decode(bytes, 16, NS_A, COLLIDED_ID, &decoded));
-    assert(memcmp(&decoded, &sentinel, sizeof(decoded)) == 0);
+    assert_same_value(&decoded, &sentinel);
     assert(!bl_epoch_v2_decode(bytes, sizeof(bytes), NS_ZERO, COLLIDED_ID, &decoded));
     assert(!bl_epoch_v2_decode(bytes, sizeof(bytes), NS_A, 0, &decoded));
     assert(!bl_epoch_v2_decode(NULL, sizeof(bytes), NS_A, COLLIDED_ID, &decoded));
@@ -77,12 +83,12 @@ static void test_wire(void) {
         memcpy(scratch, bytes, sizeof(bytes));
         scratch[i] ^= 1;
         assert(!bl_epoch_v2_decode(scratch, sizeof(scratch), NS_A, COLLIDED_ID, &decoded));
-        assert(memcmp(&decoded, &sentinel, sizeof(decoded)) == 0);
+        assert_same_value(&decoded, &sentinel);
     }
     /* Migration must be explicit: a v1-like header is not silently accepted. */
     memcpy(scratch, bytes, sizeof(bytes)); scratch[2] = 1;
     assert(!bl_epoch_v2_decode(scratch, sizeof(scratch), NS_A, COLLIDED_ID, &decoded));
-    assert(memcmp(&decoded, &sentinel, sizeof(decoded)) == 0);
+    assert_same_value(&decoded, &sentinel);
     /* NEGATIVE CONTROL: payload corruption is NOT detected by v2. */
     memcpy(scratch, bytes, sizeof(bytes)); scratch[31] ^= 1;
     assert(bl_epoch_v2_decode(scratch, sizeof(scratch), NS_A, COLLIDED_ID, &decoded));
