@@ -31,3 +31,14 @@ These are synthetic adversarial fixtures, not a prevalence estimate. The generat
 2. Test C compiler, architecture and floating-point environment sensitivity.
 3. Benchmark storage/serialization overhead against simple integer ticks.
 4. Keep the utility generic and non-operational; no weapon-specific integration.
+
+
+## E466 independent negative-result audit (2026-11-01)
+
+A separate local test used the **exact GitHub C source blob** `cf10303c9cfeebf4043452d47825c4c7f6f6148f` and header blob `8825e0bd3cc59cc577d8a0767eb95c476c202494`, compiled without fast-math. This is an independent adversarial numerical cohort, not an extension of the original positive-power-of-two claim.
+
+- **Strict positive-order counterexample:** normalized time `(hi=2^53, lo=1)` plus positive `2^-54` is mathematically larger, but the two-component result is bit-identical to the input and `bl_time2_compare` returns **0**. Thus *universal* strict monotonicity under arbitrary positive increments is false.
+- **Frozen seed 1465 mixed-sign/non-power-of-two cohort:** 1,024 sequences × 16 operations = **16,384**. Exact rational oracle comparison found **14,759 inexact intermediate results** (90.08%), **1,625 exact**, **0 rejected additions**, and **0 step-sign ordering mismatches** *within this particular cohort*. Both GCC and Clang produced these counts locally. This percentage describes the deliberately adversarial generator, **not real-world error prevalence**.
+- A committed reproducible test `tests/test_time2_adversarial.py` preserves both negative findings. Its two unittest methods passed locally with GCC; the exact test blob is `f3836706dec4281bc1bc50cdeba514dba5fb576b`. Exact-head CI and inherited repository suite remain unexecuted.
+
+**Implication:** E465's positive-power-of-two holdout remains valid, but two floating-point components cannot guarantee arbitrary-length exact rational accumulation or arbitrary small positive-step progress. A production-grade generic timestamp contract must state a minimum resolvable increment or provide a fail-closed/fallback representation (for example, integer ticks with an explicit scale). Do not silently claim strict progress for every positive delta. No trajectory or weapon-specific integration was attempted.
