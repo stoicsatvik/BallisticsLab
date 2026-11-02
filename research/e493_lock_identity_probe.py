@@ -1,14 +1,18 @@
-"""E493 research-only advisory-lock identity diagnostic, not writer quiescence.
+"""E493/E494 research-only advisory-lock identity diagnostic, not writer quiescence.
 
 A POSIX flock is advisory and attaches to an opened inode. This read-only
-probe compares that inode with the current pathname at one instant. It does
-not acquire locks, authenticate writers, fence generations, clean up files,
-or authorize checkpoint promotion. A matching result can race with a rename.
+probe compares that inode with a no-follow opened pathname at one instant.
+No path component may be a symlink. It does not acquire locks, authenticate
+writers, fence generations, clean up files, or authorize promotion. A matching
+result can still race with a rename, and hard links remain indistinguishable.
 """
 from dataclasses import dataclass
+import errno
 import os
 from pathlib import Path
 import stat
+
+from e490_nofollow_path import open_snapshot_nofollow
 
 
 @dataclass(frozen=True)
@@ -20,16 +24,25 @@ class LockIdentity:
 
 
 def inspect_lock_identity(fd: int, lock_path: Path) -> LockIdentity:
-    """Compare an already-open descriptor to a non-followed pathname.
+    """Compare an already-open descriptor with a no-follow pathname.
 
-    This is an observation, NOT a lock ownership check. Caller must separately
-    trust the directory and its writers; no result establishes quiescence.
+    This is an observation, NOT a lock ownership check. The caller must
+    independently trust the root and writers; no result proves quiescence.
     """
     if type(fd) is not int or fd < 0 or os.name != 'posix':
         return LockIdentity('inspection_error', 'invalid descriptor or non-POSIX host')
     try:
         opened = os.fstat(fd)
-        named = os.lstat(lock_path)
+        try:
+            named_fd = open_snapshot_nofollow(Path(lock_path))
+        except OSError as error:
+            if error.errno == errno.ELOOP:
+                return LockIdentity('replaced', 'symlink rejected by no-follow open')
+            raise
+        try:
+            named = os.fstat(named_fd)
+        finally:
+            os.close(named_fd)
         opened_id = (opened.st_dev, opened.st_ino)
         named_id = (named.st_dev, named.st_ino)
         if not stat.S_ISREG(opened.st_mode) or not stat.S_ISREG(named.st_mode):
