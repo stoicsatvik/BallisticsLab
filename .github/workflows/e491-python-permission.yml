@@ -1,0 +1,33 @@
+name: E491 local permission boundary probe
+
+on:
+  push:
+    branches:
+      - research/e491-local-permission-boundary-20261102
+  pull_request:
+    paths:
+      - 'research/e491_permission_boundary_probe.py'
+      - 'tests/test_e491_permission_boundary_probe.py'
+      - '.github/workflows/e491-python-permission.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  permission-boundary:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Compile modules
+        run: python -m py_compile research/e490_nofollow_path.py research/e491_permission_boundary_probe.py
+      - name: Inherited E477 tests
+        run: python -m unittest discover -s tests -p 'test_e477_pinned_registry_snapshot.py' -v
+      - name: Inherited E487 tests
+        run: python -m unittest discover -s tests -p 'test_e487_publication_recovery_probe.py' -v
+      - name: Inherited E490 tests
+        run: python -m unittest discover -s tests -p 'test_e490_nofollow_path.py' -v
+      - name: E491 local permission tests
+        run: python -m unittest discover -s tests -p 'test_e491_permission_boundary_probe.py' -v
