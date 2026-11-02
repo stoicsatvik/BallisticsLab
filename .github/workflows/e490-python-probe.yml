@@ -1,0 +1,36 @@
+name: E490 read-only snapshot path probe
+
+on:
+  push:
+    branches:
+      - research/e490-parent-symlink-openat-20261102
+  pull_request:
+    paths:
+      - 'research/e476_registry_contract.py'
+      - 'research/e477_pinned_registry_snapshot.py'
+      - 'research/e487_publication_recovery_probe.py'
+      - 'research/e490_nofollow_path.py'
+      - 'tests/test_e477_pinned_registry_snapshot.py'
+      - 'tests/test_e487_publication_recovery_probe.py'
+      - 'tests/test_e490_nofollow_path.py'
+      - '.github/workflows/e490-python-probe.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  snapshot-probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Compile research modules
+        run: python -m py_compile research/e476_registry_contract.py research/e477_pinned_registry_snapshot.py research/e487_publication_recovery_probe.py research/e490_nofollow_path.py
+      - name: E477 inherited regression tests
+        run: python -m unittest discover -s tests -p 'test_e477_pinned_registry_snapshot.py' -v
+      - name: E487 inherited regression tests
+        run: python -m unittest discover -s tests -p 'test_e487_publication_recovery_probe.py' -v
+      - name: E490 no-follow regression tests
+        run: python -m unittest discover -s tests -p 'test_e490_nofollow_path.py' -v
