@@ -11,6 +11,7 @@ from pathlib import Path
 import stat
 
 from e477_pinned_registry_snapshot import MAX_BYTES, load_pinned, sha256
+from e490_nofollow_path import open_snapshot_nofollow
 
 
 class ProbeState(str, Enum):
@@ -40,17 +41,13 @@ def probe_snapshot(path: Path, expected_sha256: str | None = None,
     """
     if (expected_sha256 is None) != (expected_namespace is None):
         return ProbeResult(ProbeState.INSPECTION_ERROR, detail="digest and namespace must be supplied together")
-    if not hasattr(os, "O_NOFOLLOW") or not hasattr(os, "O_NONBLOCK"):
-        return ProbeResult(ProbeState.INSPECTION_ERROR, detail="safe no-follow/nonblocking open unavailable")
-    flags = os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK
-    if hasattr(os, "O_CLOEXEC"):
-        flags |= os.O_CLOEXEC
     try:
-        fd = os.open(Path(path), flags)
+        fd = open_snapshot_nofollow(Path(path))
     except FileNotFoundError:
         return ProbeResult(ProbeState.ABSENT)
-    except OSError:
-        return ProbeResult(ProbeState.INSPECTION_ERROR, detail="could not open target safely")
+    except (OSError, ValueError):
+        return ProbeResult(ProbeState.INSPECTION_ERROR,
+                           detail="could not open target and ancestors without following symlinks")
 
     try:
         with os.fdopen(fd, "rb", closefd=True) as handle:
