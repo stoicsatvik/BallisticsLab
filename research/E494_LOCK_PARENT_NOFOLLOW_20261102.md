@@ -24,3 +24,7 @@ Replace pathname `lstat` with E490's already tested `open_snapshot_nofollow` des
 A hard link to the same inode still returns `same_inode`. A path may be renamed after inspection. The caller-supplied root, filesystem/mount namespace, writer identities, cooperative lock discipline and authority are unverified. `flock` remains advisory. The result never establishes writer quiescence, checkpoint issuer authentication, persistent anti-rollback, durable publication, or permission to promote snapshots or delete orphan files.
 
 No production recovery behavior, key provisioning, cleanup, deployment, trajectory or weapon functionality changed.
+
+## Exact-head CI validation
+
+At commit `e4f11519f3ffbf21609586173c6693c51cf5d70a`, GitHub Actions [E493/E494 Python run #41392250743](https://github.com/stoicsatvik/BallisticsLab/actions/runs/41392250743) **SUCCEEDED**: compilation and E477 (12), E487 (13), E490 (11), E491 (10), E492 (17), E493 (9), E494 (5) test steps, **77 tests in total**. [C CI #41392250911](https://github.com/stoicsatvik/BallisticsLab/actions/runs/41392250911) and [E409 #41392250732](https://github.com/stoicsatvik/BallisticsLab/actions/runs/41392250732) also succeeded. These CI results do not establish trusted fencing, multi-host correctness or power-loss durability.
