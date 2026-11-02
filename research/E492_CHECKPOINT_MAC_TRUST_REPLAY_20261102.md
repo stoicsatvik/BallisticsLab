@@ -22,7 +22,7 @@ python -m py_compile research/e492_checkpoint_mac_gate.py tests/test_e492_checkp
 python -m unittest discover -s tests -p 'test_e492_checkpoint_mac_gate.py' -v
 ```
 
-Local Python 3.11: **17/17 tests passed**, compilation passed. Source and test Git blobs match the locally executed files: `dbd671f7ac3953df3738026b86b909e74aabaa3e` and `56f77ce6f2756963abd4ad42d5818b174aa1c4e5`. Exact-head Actions and inherited suite should be checked separately.
+Local Python 3.13.5: **17/17 tests passed**, compilation passed. Source and test Git blobs match the locally executed files: `dbd671f7ac3953df3738026b86b909e74aabaa3e` and `56f77ce6f2756963abd4ad42d5818b174aa1c4e5`. Exact-head Actions and inherited suite should be checked separately.
 
 ## Strict boundaries
 
