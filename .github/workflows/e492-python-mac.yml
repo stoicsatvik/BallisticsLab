@@ -1,0 +1,35 @@
+name: E492 checkpoint MAC trust and replay gate
+
+on:
+  push:
+    branches:
+      - research/e492-checkpoint-mac-replay-gate-20261102
+  pull_request:
+    paths:
+      - 'research/e492_checkpoint_mac_gate.py'
+      - 'tests/test_e492_checkpoint_mac_gate.py'
+      - '.github/workflows/e492-python-mac.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  mac-replay:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Compile research modules
+        run: python -m py_compile research/e477_pinned_registry_snapshot.py research/e490_nofollow_path.py research/e491_permission_boundary_probe.py research/e492_checkpoint_mac_gate.py
+      - name: Inherited E477 tests
+        run: python -m unittest discover -s tests -p 'test_e477_pinned_registry_snapshot.py' -v
+      - name: Inherited E487 tests
+        run: python -m unittest discover -s tests -p 'test_e487_publication_recovery_probe.py' -v
+      - name: Inherited E490 tests
+        run: python -m unittest discover -s tests -p 'test_e490_nofollow_path.py' -v
+      - name: Inherited E491 tests
+        run: python -m unittest discover -s tests -p 'test_e491_permission_boundary_probe.py' -v
+      - name: E492 MAC/replay tests
+        run: python -m unittest discover -s tests -p 'test_e492_checkpoint_mac_gate.py' -v
