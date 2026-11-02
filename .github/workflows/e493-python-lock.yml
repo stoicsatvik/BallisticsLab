@@ -1,4 +1,4 @@
-name: E493 advisory lock quiescence falsification
+name: E493/E494 advisory lock identity falsification
 
 on:
   push:
@@ -8,6 +8,7 @@ on:
     paths:
       - 'research/e493_lock_identity_probe.py'
       - 'tests/test_e493_lock_identity_probe.py'
+      - 'tests/test_e494_lock_parent_nofollow.py'
       - '.github/workflows/e493-python-lock.yml'
 
 permissions:
@@ -23,7 +24,7 @@ jobs:
         with:
           python-version: '3.13'
       - name: Compile research modules
-        run: python -m py_compile research/e477_pinned_registry_snapshot.py research/e490_nofollow_path.py research/e491_permission_boundary_probe.py research/e492_checkpoint_mac_gate.py research/e493_lock_identity_probe.py
+        run: python -m py_compile research/e477_pinned_registry_snapshot.py research/e490_nofollow_path.py research/e491_permission_boundary_probe.py research/e492_checkpoint_mac_gate.py research/e493_lock_identity_probe.py tests/test_e494_lock_parent_nofollow.py
       - name: Inherited E477 tests
         run: python -m unittest discover -s tests -p 'test_e477_pinned_registry_snapshot.py' -v
       - name: Inherited E487 tests
@@ -36,3 +37,5 @@ jobs:
         run: python -m unittest discover -s tests -p 'test_e492_checkpoint_mac_gate.py' -v
       - name: E493 advisory lock tests
         run: python -m unittest discover -s tests -p 'test_e493_lock_identity_probe.py' -v
+      - name: E494 parent no-follow tests
+        run: python -m unittest discover -s tests -p 'test_e494_lock_parent_nofollow.py' -v
