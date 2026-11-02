@@ -16,7 +16,7 @@ E487's read-only publication probe opened the snapshot with O_NOFOLLOW but did n
 
 ## Validation and preserved limits
 
-Before commit, the independent local helper prototype passed **8/8** synthetic POSIX tests. The existing final-only O_NOFOLLOW bypass was reproduced separately. The repository's new E490 tests and inherited suites require exact-head GitHub Actions validation; do not call them passed until a completed successful workflow exists.
+Before commit, the independent local helper prototype passed **8/8** synthetic POSIX tests. The existing final-only O_NOFOLLOW bypass was reproduced separately. Exact-head GitHub Actions run [#41371218322](https://github.com/stoicsatvik/BallisticsLab/actions/runs/41371218322) **SUCCEEDED** at commit `041b276df1967acb71c18fa4e7cee7236376eb51`: 12/12 E477 tests, 13/13 E487 tests, and 11/11 E490 tests (36/36 total), plus compilation of all four research modules. Concurrent exact-head E409 and C CI workflows also succeeded (runs #41371218298 and #41371218207). This is synthetic Linux/POSIX regression evidence, not physical crash durability, hostile-filesystem proof, or issuer authentication.
 
 The fix protects against symlink traversal during descriptor-relative path opening. It does **not** establish trusted directory ownership, stable pathname identity after opening, hard-link provenance, issuer authentication, safe orphan cleanup, power-loss durability, or safety on hostile/network filesystems. A writer can rename or replace the path after opening; the fd still refers to the previously opened inode. The new test preserves that negative result.
 
