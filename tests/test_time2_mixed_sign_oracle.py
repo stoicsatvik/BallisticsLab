@@ -13,6 +13,7 @@ class E495MixedSignOracleTests(unittest.TestCase):
         self.assertEqual(counts["output_mutations_on_reject"], 0)
         self.assertEqual(counts["exact_accepted"] + counts["inexact_accepted"], counts["accepted"])
         self.assertGreater(counts["canonical_two_component_witnesses"], 0)
+        self.assertEqual(counts["rejections_despite_canonical_witness"], 0)
 
     def test_structured_subulp_and_overflow_boundaries_are_present(self):
         result = run_campaign(random_cases=0, seed=495)
@@ -32,6 +33,7 @@ class E495MixedSignOracleTests(unittest.TestCase):
         self.assertTrue(cases["exact_cancellation"]["accepted"])
         self.assertTrue(cases["minimum_subnormal_addition"]["accepted"])
         self.assertFalse(cases["overflow_rejection"]["accepted"])
+        self.assertFalse(cases["overflow_rejection"]["exact_sum_has_canonical_two_component_witness"])
         self.assertTrue(cases["overflow_rejection"]["output_unchanged_on_reject"])
 
 
