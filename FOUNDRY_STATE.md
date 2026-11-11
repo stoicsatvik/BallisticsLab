@@ -99,13 +99,14 @@ Do not provide tactical attack planning, target selection, exploitation of milit
 
 - Draft PR: https://github.com/stoicsatvik/BallisticsLab/pull/41
 - Branch: `foundry/v02-vacuum-integrator-20261112`
-- Implementation head before this state update: `aaa56eb77da6373bb235f854f1bd0be5ae0360e1`
+- Implementation head before the state update: `aaa56eb77da6373bb235f854f1bd0be5ae0360e1`
 - Added caller-buffered explicit-Euler integration, ground-contact interpolation, bounded sample allocation in the CLI, CSV serialization, deterministic tests, and numerical-method documentation.
 - Local validation: `make clean && make && make test` passed; GCC C11 with `-Werror`, AddressSanitizer and UndefinedBehaviorSanitizer passed; Clang C11 with `-Werror` passed.
 - CSV smoke: 20 m/s, 45 degrees, dt=0.01 s produced 291 trajectory samples plus header; the final sample is exactly at y=0.
 - Range-error convergence for that deterministic software case: 1.129890 m at 0.08 s, 0.564967 m at 0.04 s, 0.282521 m at 0.02 s, 0.141302 m at 0.01 s, and 0.014141 m at 0.001 s.
+- Exact-head GitHub Actions run [#43080664587](https://github.com/stoicsatvik/BallisticsLab/actions/runs/43080664587) passed on commit `5d7813cc7b76eabfefe247adcfa56e362d764e4b`; both Build and Test steps succeeded.
 - Claim: numerical integrator behavior **SUPPORTED within the tested software contract**. This is not a physical measurement, weapon model, firing solution, targeting tool, or universal error bound.
-- Exact-head GitHub Actions status is pending. Keep the PR draft and unmerged.
+- Keep the PR draft and unmerged.
 
 ## Validation rules
 - physics claims require derivation, test, or cited source
