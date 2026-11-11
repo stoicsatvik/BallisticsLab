@@ -1,0 +1,45 @@
+name: E495 generic two-component mixed-sign oracle
+
+on:
+  push:
+    branches:
+      - research/e495-time2-mixed-sign-oracle-20261111
+    paths:
+      - research/e495_time2_mixed_sign_oracle.py
+      - tests/test_time2_mixed_sign_oracle.py
+      - research/E495_MIXED_SIGN_ORACLE_20261111.md
+      - .github/workflows/e495-time2-oracle.yml
+  pull_request:
+    branches:
+      - research/e493-advisory-lock-quiescence-20261102
+    paths:
+      - research/e495_time2_mixed_sign_oracle.py
+      - tests/test_time2_mixed_sign_oracle.py
+      - research/E495_MIXED_SIGN_ORACLE_20261111.md
+      - .github/workflows/e495-time2-oracle.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-rational-envelope:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Run deterministic oracle tests
+        run: python -m unittest tests.test_time2_mixed_sign_oracle -v
+      - name: Run full frozen mixed-sign campaign
+        run: python research/e495_time2_mixed_sign_oracle.py --random-cases 4096 --seed 495 --output e495_time2_receipt.json
+      - name: Preserve compact numerical receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e495-time2-mixed-sign-receipt
+          path: e495_time2_receipt.json
+          if-no-files-found: ignore
+          retention-days: 14
