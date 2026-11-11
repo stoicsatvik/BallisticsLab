@@ -3,8 +3,8 @@ CFLAGS ?= -std=c11 -Wall -Wextra -pedantic -O2
 LDLIBS ?= -lm
 TARGET := ballisticslab
 TEST_TARGET := test_physics
-SRC := src/main.c src/physics.c
-TEST_SRC := tests/test_physics.c src/physics.c
+SRC := src/main.c src/physics.c src/integrator.c
+TEST_SRC := tests/test_physics.c src/physics.c src/integrator.c
 
 .PHONY: all clean run test
 
