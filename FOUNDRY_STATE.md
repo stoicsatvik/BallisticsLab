@@ -106,6 +106,7 @@ Do not provide tactical attack planning, target selection, exploitation of milit
 - Range-error convergence for that deterministic software case: 1.129890 m at 0.08 s, 0.564967 m at 0.04 s, 0.282521 m at 0.02 s, 0.141302 m at 0.01 s, and 0.014141 m at 0.001 s.
 - Exact-head GitHub Actions run [#43080664587](https://github.com/stoicsatvik/BallisticsLab/actions/runs/43080664587) passed on commit `5d7813cc7b76eabfefe247adcfa56e362d764e4b`; both Build and Test steps succeeded.
 - Claim: numerical integrator behavior **SUPPORTED within the tested software contract**. This is not a physical measurement, weapon model, firing solution, targeting tool, or universal error bound.
+- Follow-up safety review found a `double` boundary issue: `(double)(SIZE_MAX - 4)` can round to 2^64 on 64-bit systems, allowing equality through a `>` guard before an out-of-range cast. The guard now rejects equality and a regression uses `ldexp(flight_time, -64)` to exercise the boundary; the integrator's physics and scientific claim are unchanged.
 - Keep the PR draft and unmerged.
 
 ## Validation rules
