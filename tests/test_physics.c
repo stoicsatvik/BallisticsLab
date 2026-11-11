@@ -75,6 +75,10 @@ int main(void) {
     assert(bl_simulate_vacuum(10.0, 45.0, NAN, degenerate, 4, &degenerate_count) == BL_SIM_INVALID_ARGUMENT);
     assert(bl_simulate_vacuum(10.0, 45.0, 0.001, degenerate, 4, &degenerate_count) == BL_SIM_INSUFFICIENT_CAPACITY);
     assert(degenerate_count == 0);
+    const double boundary_dt = ldexp(analytic.flight_time_s, -64);
+    assert(boundary_dt > 0.0 && isfinite(boundary_dt));
+    assert(bl_simulate_vacuum(20.0, 45.0, boundary_dt, degenerate, 4, &degenerate_count) == BL_SIM_INSUFFICIENT_CAPACITY);
+    assert(degenerate_count == 0);
 
     FILE *csv = tmpfile();
     assert(csv != NULL);
