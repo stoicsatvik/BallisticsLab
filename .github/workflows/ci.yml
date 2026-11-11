@@ -13,3 +13,7 @@ jobs:
         run: make
       - name: Test
         run: make test
+      - name: Sanitizer build and test
+        run: |
+          make clean
+          make CFLAGS="-std=c11 -Wall -Wextra -Werror -pedantic -O1 -g -fsanitize=address,undefined,float-cast-overflow -fno-omit-frame-pointer -fno-sanitize-recover=all" LDLIBS="-lm -fsanitize=address,undefined,float-cast-overflow" test
