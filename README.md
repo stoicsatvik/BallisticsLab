@@ -22,14 +22,16 @@ The project is intentionally **non-operational**: it does not provide weapon-con
 - Momentum and kinetic energy helpers
 
 ### v0.2 — Numerical simulation
-- Time-step integration
-- CSV output
-- Unit tests
+- Reusable explicit-Euler time-step integration
+- Ground-contact interpolation
+- CSV output with a configurable time step
+- Analytical-reference and convergence tests
 
 ### v0.3 — Statistics
 - Measurement uncertainty
-- Mean, variance and standard deviation
-- Monte Carlo simulation of generic projectile dispersion
+- Mean, sample variance and standard deviation
+- Seeded pseudo-random sampling for reproducible experiments
+- Monte Carlo propagation for generic classroom measurement examples
 
 ### v0.4 — Aerodynamics
 - Generic drag models
@@ -50,15 +52,25 @@ make
 Or directly:
 
 ```bash
-cc -std=c11 -Wall -Wextra -pedantic src/main.c src/physics.c -lm -o ballisticslab
+cc -std=c11 -Wall -Wextra -pedantic src/main.c src/physics.c src/integrator.c -lm -o ballisticslab
 ./ballisticslab
 ```
+
+Generate a generic numerical trace (the same input prompts are used):
+
+```bash
+./ballisticslab --csv trajectory.csv 0.01
+```
+
+The final argument is the time step in seconds. The CLI caps a trace at one million samples.
 
 Run tests with:
 
 ```bash
 make test
 ```
+
+See [docs/numerical-integrator.md](docs/numerical-integrator.md) for the update equations, interpolation, convergence example and limitations.
 
 ## Learning rule
 
