@@ -48,3 +48,8 @@ The fine-step endpoint is also checked against the analytical reference. These a
 ## Limitations
 
 No drag, wind, changing gravity, terrain, spin, object shape, launch mechanism, or environmental calibration is modeled. Mass is used only by the separate momentum and kinetic-energy demonstrations; it does not affect the vacuum trajectory. This is not validated against physical measurements.
+
+
+## Capacity arithmetic
+
+The caller-buffered API computes a conservative required sample capacity before writing any samples. The floating-point step ratio is checked before conversion to `size_t`; equality at the `(SIZE_MAX - 4)` boundary is rejected because that integer can round upward when represented as `double` on 64-bit platforms. Extremely small positive time steps therefore return `BL_SIM_INSUFFICIENT_CAPACITY` without entering an out-of-range float-to-integer conversion or modifying the sample count.
