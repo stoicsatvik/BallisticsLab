@@ -38,7 +38,12 @@ BLSimulationStatus bl_simulate_vacuum(
     size_t required_capacity = 1;
     if (vy0 > 0.0) {
         const double step_ratio = analytic.flight_time_s / dt_s;
-        if (!isfinite(step_ratio) || step_ratio > (double)(SIZE_MAX - 4)) {
+        /*
+         * On 64-bit platforms, converting SIZE_MAX - 4 to double can round
+         * upward to 2^64. Reject equality too, before an out-of-range
+         * floating-point-to-size_t conversion can occur.
+         */
+        if (!isfinite(step_ratio) || step_ratio >= (double)(SIZE_MAX - 4)) {
             return BL_SIM_INSUFFICIENT_CAPACITY;
         }
         required_capacity = (size_t)ceil(step_ratio) + 4;
