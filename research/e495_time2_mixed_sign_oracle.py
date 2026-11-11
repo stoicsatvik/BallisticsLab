@@ -95,6 +95,8 @@ def two_component_witness(exact: Fraction) -> tuple[str, str] | None:
         return None
     if not math.isfinite(lo):
         return None
+    if not math.isfinite(hi + lo):
+        return None
     if Fraction.from_float(hi) + Fraction.from_float(lo) != exact:
         return None
     return hi.hex(), lo.hex()
