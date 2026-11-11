@@ -7,7 +7,7 @@ class E495MixedSignOracleTests(unittest.TestCase):
     def test_frozen_campaign_preserves_direction_and_failure_atomicity(self):
         result = run_campaign(random_cases=512, seed=495)
         counts = result["counts"]
-        self.assertEqual(result["total_cases"], 8 + 42 + 512)
+        self.assertEqual(result["total_cases"], 8 + 82 + 512)
         self.assertEqual(counts["accepted"] + counts["rejected"], result["total_cases"])
         self.assertEqual(counts["direction_failures"], 0)
         self.assertEqual(counts["output_mutations_on_reject"], 0)
